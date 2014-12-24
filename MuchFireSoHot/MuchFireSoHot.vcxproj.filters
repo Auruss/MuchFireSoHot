@@ -3,4 +3,7 @@
   <ItemGroup>
     <ClCompile Include="MuchFireSoHot.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.md" />
+  </ItemGroup>
 </Project>
