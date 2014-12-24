@@ -1,14 +1,25 @@
 Much Fire - So Hot
 ==================
 
-Workflow
+AGILE/SCRUM Workflow
 --------
 https://waffle.io/Auruss/MuchFireSoHot is our AGILE issue board which is connected with github issues.
 (NOTE: Our forks are not connected to any board.)
 
-_Rules_: Do not touch backlog issues if you are not authorized to do so.
-_Tipps_:
-1. Keep Issues in progress as long as the issue is not merged to master (write a comment and unassign if you pushed to any other branch and are wating for merging)
+### Using our Agile board at waffle.io
+1. Everybody can create an issue!
+2. Once an issue gets approven. Its moved to ready 
+	1. The SCRUM master is the only person that is allowed to approve
+3. You can grab an issue that is approved (at ready) and move it to in progress once you start to work on that issue
+	1. Please also assign the issue to yourself
+4. Once you are done, pls push all changes to an branch (not master) and create an pull request to the master
+5. The SCRUM master will review it / or asks somebody else to review
+6. The SCRUM master will merge it to the master branch.
+
+(NOTE: If you have an idea for making the game better please create an issue and wait for response)
+
+### Current SCRUM master
+Rene Eichhorn / Auruss
 
 Building
 --------
