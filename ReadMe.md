@@ -4,7 +4,7 @@ Much Fire - So Hot
 AGILE/SCRUM Workflow
 --------
 https://waffle.io/Auruss/MuchFireSoHot is our AGILE issue board which is connected with github issues.
-(NOTE: Our forks are not connected to any board.)
+(NOTE: Our forks are connected with that board as well.)
 
 ### Using our Agile board at waffle.io
 1. Everybody can create an issue!
