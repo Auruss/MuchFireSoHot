@@ -7,6 +7,8 @@ https://waffle.io/Auruss/MuchFireSoHot is our AGILE issue board which is connect
 (NOTE: Our forks are not connected to any board.)
 
 _Rules_: Do not touch backlog issues if you are not authorized to do so.
+_Tipps_:
+1. Keep Issues in progress as long as the issue is not merged to master (write a comment and unassign if you pushed to any other branch and are wating for merging)
 
 Building
 --------
