@@ -99,7 +99,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.md" />
+    <ClInclude Include="LevelBackgroundModel.h" />
+    <ClInclude Include="LevelBlockModel.h" />
+    <ClInclude Include="LevelChunkModel.h" />
+    <ClInclude Include="LevelEvent.h" />
+    <ClInclude Include="LevelModel.h" />
+    <ClInclude Include="LevelTrigger.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

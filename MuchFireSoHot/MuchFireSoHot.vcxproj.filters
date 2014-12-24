@@ -4,6 +4,31 @@
     <ClCompile Include="MuchFireSoHot.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.md" />
+    <Filter Include="Core">
+      <UniqueIdentifier>{fcfcbd2e-014a-470d-80d1-af06e920ec4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Level">
+      <UniqueIdentifier>{dbaeb03e-7c80-41b7-a2cf-d405049314f6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LevelModel.h">
+      <Filter>Core\Level</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelChunkModel.h">
+      <Filter>Core\Level</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelEvent.h">
+      <Filter>Core\Level</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelTrigger.h">
+      <Filter>Core\Level</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelBackgroundModel.h">
+      <Filter>Core\Level</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelBlockModel.h">
+      <Filter>Core\Level</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
