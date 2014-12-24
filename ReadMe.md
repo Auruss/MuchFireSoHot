@@ -18,6 +18,8 @@ https://waffle.io/Auruss/MuchFireSoHot is our AGILE issue board which is connect
 
 (NOTE: If you have an idea for making the game better please create an issue and wait for response)
 
+### Current SCRUM master
+Rene Eichhorn / Auruss
 
 Building
 --------
