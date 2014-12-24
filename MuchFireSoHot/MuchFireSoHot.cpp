@@ -83,8 +83,6 @@ void run()
 //{
 	int main(int argc, char* argv [])
 	{
-		printf("DEBUG\n");
-
 		run();
 		return 0;
 	}
