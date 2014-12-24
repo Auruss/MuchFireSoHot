@@ -18,6 +18,13 @@ https://waffle.io/Auruss/MuchFireSoHot is our AGILE issue board which is connect
 
 (NOTE: If you have an idea for making the game better please create an issue and wait for response)
 
+### Agile Board tipps
+1. If you have troubles fixing/resolving an issue that you are assigned to,
+	feel free to unassign and put it back to Ready (make sure you push any progress you made to an branch) 
+2. If you feel like an issue is dependent on an other issue, move it to "On Hold" and write a comment on both issues.
+3. Feel free to discuss with comments before starting to work on an issue.
+
+
 ### Current SCRUM master
 Rene Eichhorn / Auruss
 
