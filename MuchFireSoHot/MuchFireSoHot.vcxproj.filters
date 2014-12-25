@@ -2,6 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="MuchFireSoHot.cpp" />
+    <ClCompile Include="GameTime.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -9,6 +12,9 @@
     </Filter>
     <Filter Include="Core\Level">
       <UniqueIdentifier>{dbaeb03e-7c80-41b7-a2cf-d405049314f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{b5651aab-c519-4902-9f81-ec4ec213cf51}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -29,6 +35,9 @@
     </ClInclude>
     <ClInclude Include="LevelBlockModel.h">
       <Filter>Core\Level</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTime.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
