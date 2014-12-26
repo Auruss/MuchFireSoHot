@@ -31,9 +31,12 @@ Rene Eichhorn / Auruss
 Building
 --------
 1. Create one root folder
-2. Clone this repo + https://github.com/Auruss/SDL2_2.0.3_Fork and https://github.com/Auruss/oxygine-framework directly into the root folder
-3. Open VS Project and compile
-4. Check "Known building issues"
+2. Clone this repo + https://github.com/Auruss/SDL2_2.0.3_Fork directly into the root folder
+3. http://kripken.github.io/emscripten-site/docs/building_from_source/building_emscripten_from_source_on_windows.html
+	1. Use our fork https://github.com/Auruss/emscripten
+	2. Make sure you do 3. in root/emscripten/
+5. Open VS Project and compile
+6. Check "Known building issues"
 
 Known building issues 
 ---------------------
