@@ -4,8 +4,6 @@
 #include <vector>
 #include <map>
 
-// Oxygine
-#include <math/rect.h>
 
 // Locals
 #include "LevelChunkModel.h"

@@ -1,10 +1,5 @@
 #pragma once
 
-#include <core/oxygine.h>
-#include <core/vertex.h>
-#include <core/Texture.h>
-#include <Polygon.h>
-
 #include "LevelModel.h"
 
 
