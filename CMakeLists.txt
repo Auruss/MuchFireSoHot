@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Settings
-set(EMSCRIPTEN_PREFIX "C://Program Files/Emscripten/emscripten/1.25.0")
+set(EMSCRIPTEN_PREFIX "/home/developer/emscripten/emscripten/master")
 
 set(CMAKE_C_COMPILER "${EMSCRIPTEN_PREFIX}/emcc")
 set(CMAKE_CXX_COMPILER "${EMSCRIPTEN_PREFIX}/em++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
+set(CMAKE_TOOLCHAIN_FILE "/home/developer/emscripten/emscripten/master/cmake/Modules/Platform/Emscripten.cmake")
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
 # Source
 file(GLOB SOURCE_FILES
