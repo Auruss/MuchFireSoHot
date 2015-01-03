@@ -5,6 +5,7 @@ set(EMSCRIPTEN_PREFIX "/home/developer/emscripten/emscripten/master")
 
 set(CMAKE_C_COMPILER "${EMSCRIPTEN_PREFIX}/emcc")
 set(CMAKE_CXX_COMPILER "${EMSCRIPTEN_PREFIX}/em++")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++0x")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 set(CMAKE_TOOLCHAIN_FILE "/home/developer/emscripten/emscripten/master/cmake/Modules/Platform/Emscripten.cmake")
