@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+
+    <!-- Thanks google -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+    <style>
+        #webgl-output {
+            width: 1200px;
+            height: 900px;
+
+            background-color: #333333;
+            color: #efefef;
+
+            border-color: black;
+            border-width: 3px;
+
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 35px;
+        }
+
+        #console-output {
+            overflow: auto;
+
+            width: 1000px;
+            height: 650px;
+
+            background-color: #333333;
+            color: #efefef;
+
+            border-color: black;
+            border-width: 3px;
+
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #console-output span {
+            display:block;
+
+            font-family: monospace;
+            font-size: 16px;
+
+            margin-left: 5px;
+        }
+
+        .text-log {
+            color: #efefef;
+        }
+        .text-error {
+            color: #ee5f5b;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webgl-output">
+        <canvas id="webgl-canvas">
+
+        </canvas>
+    </div>
+
+    <div id="console-output">
+        <span style="color: #eeeeee;">Program output: </span>
+        <span style="color: #eeeeee;">Waiting for download... </span>
+    </div>
+</body>
+
+<script>
+    var Module = {
+        preRun: (function() {
+            $("#console-output").append("<span class='text-log'>Starting...</span>");
+        }),
+        postRun: [],
+        arguments: ["--developer-test", "-rx","1200", "-ry","900"],
+        print: (function(text) {
+            $("#console-output").append("<span class='text-log'>[LOG]&nbsp;" + text + "</span>");
+        }),
+        printErr: (function(text) {
+            $("#console-output").append("<span class='text-error'>[ERROR]&nbsp;" + text + "</span>");
+        }),
+        canvas: (function() {
+            var canvas = document.getElementById('webgl-canvas');
+            canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+            return canvas;
+        })()
+    };
+</script>
+
+<script async type="text/javascript" src="build/MuchFireSoHot.js"></script>
+
+</html>
