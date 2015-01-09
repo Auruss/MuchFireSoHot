@@ -5,7 +5,8 @@ namespace Common {
 	uint32_t GameTime::FPS = 0;
 
 	uint32_t GameTime::CurrentFrame = 0;
-	std::chrono::high_resolution_clock::time_point GameTime::SecondStart;
+	//std::chrono::high_resolution_clock::time_point GameTime::SecondStart;
+	GameTimeObj GameTime::fps_resetter;
 
 	// -------------------------------------------------------------------------------------------------------
 
@@ -18,7 +19,7 @@ namespace Common {
 
 	void GameTime::on_frame() {
 		GameTime::CurrentFrame++;
-		auto now = std::chrono::high_resolution_clock::now();
+		/*auto now = std::chrono::high_resolution_clock::now();
 		auto dur = now - GameTime::SecondStart;
 
 		if (std::chrono::duration_cast<std::chrono::milliseconds>(dur).count() >= 1000) {
@@ -28,6 +29,10 @@ namespace Common {
 		}
 		else {
 			CurrentFrame++;
+		}*/
+		if(GameTime::tickEvery(1000, GameTime::fps_resetter, false)) {
+			GameTime::FPS = GameTime::CurrentFrame;
+			GameTime::CurrentFrame = 0;
 		}
 	}
 
