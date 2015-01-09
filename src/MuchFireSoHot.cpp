@@ -7,7 +7,7 @@
 #include <chrono>
 #endif
 
-#include "GameTime.h"
+#include <Common/GameTime.h>
 
 #ifndef WIN32 
 #include <emscripten/emscripten.h>
@@ -15,6 +15,8 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include <Level/Model/Base.h>
 
 
 GameTimeObj fps_debugger;
@@ -28,19 +30,41 @@ extern "C" void set_resolution(int x, int y) {
 
 }
 
+Level::Model::Base* current_level = NULL;
+
+
 // prepare test system
 void prepare_test() {
-
+	// create test level
+	current_level = new Level::Model::Base();
+	current_level->ChunksX = 5;
+	current_level->ChunksY = 5;
+	current_level->ChunkScale = 10;
+	current_level->LevelName = "Developer Test Level";
+	current_level->Background = new Level::Model::Background();
+	current_level->Background->BgColor = glm::vec3(1.0f, 0.5f, 0.25f);
+	
 }
+
+
+GLFWwindow* window;
 
 //called each frame
 void mainloop()
 {
 	// update game time
-	GameTime::on_frame();
-	if(GameTime::tickEvery(10000, fps_debugger, false)) { // print every 10 seconds the fps
-		printf("FPS Debugger Tick: %d\n", GameTime::FPS);
+	Common::GameTime::on_frame();
+	if (Common::GameTime::tickEvery(10000, fps_debugger, false)) { // print every 10 seconds the fps
+		printf("FPS Debugger Tick: %d\n", Common::GameTime::FPS);
 	}
+
+	//render
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	if (current_level != NULL) {
+	}
+
+	glfwSwapBuffers(window);
 }
 
 void init_gl(int width, int height) {
@@ -49,11 +73,12 @@ void init_gl(int width, int height) {
 		exit(1);
 	}
 
-	GLFWwindow* window = glfwCreateWindow(width, height, "JS", NULL, NULL);
+	window = glfwCreateWindow(width, height, "JS", NULL, NULL);
 	if (window == NULL) {
 		printf("glfwCreateWindow() failed\n");
 		exit(1);
 	}
+	glfwSwapInterval(1);
 	glfwMakeContextCurrent(window);
 
 	GLenum err = glewInit();
@@ -61,6 +86,31 @@ void init_gl(int width, int height) {
 		fprintf(stderr, "GLEW failed: %s\n", glewGetErrorString(err));
 		exit(1);
 	}
+
+	printf("OpenGL Stats:\n");
+
+	// Printing OpenGL information
+	printf("\tVersion:  %s\n", glGetString(GL_VERSION));
+	printf("\tGLSL:     %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	printf("\tVendor:   %s\n", glGetString(GL_VENDOR));
+	printf("\tRenderer: %s\n", glGetString(GL_RENDERER));
+
+	// Print extensions
+	GLint n = 0;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+	printf("\tExt.:     %d\n", n);
+
+#ifdef WIN32
+	for (GLint i = 0; i < n; i++)
+	{
+		printf("\tExt %d: %s\n", i, glGetStringi(GL_EXTENSIONS, i));
+	}
+#else
+	printf("Extensions: %s\n", glGetString(GL_EXTENSIONS));
+#endif
+
+
+	glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 }
 
 int main(int argc, char* argv [])
@@ -95,7 +145,7 @@ int main(int argc, char* argv [])
 #ifdef WIN32
 	while (true) {
 		mainloop();
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 #else
 	emscripten_set_main_loop(mainloop, 60, true);
