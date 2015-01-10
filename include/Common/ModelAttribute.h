@@ -20,8 +20,12 @@ namespace Common {
 		}
 
 		bool hasChanged() {
-			_hasChanged = !_hasChanged;
-			return !_hasChanged;
+			if(_hasChanged) {
+				_hasChanged = false;
+				return true;
+			} else {
+				return false;
+			}
 		}
 	
 	private:

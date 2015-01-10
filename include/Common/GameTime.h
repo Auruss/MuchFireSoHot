@@ -66,6 +66,9 @@ namespace Common {
 			*/
 		static float fadeEvery(uint32_t ms, uint32_t every_ms, GameTimeObj& obj);
 
+	private:
+		static GameTimeObj fps_resetter;
+
 	};
 
 }
