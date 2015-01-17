@@ -23,7 +23,6 @@ namespace Common {
 	public:
 		static uint32_t FPS;
 		static uint32_t CurrentFrame;
-		static std::chrono::high_resolution_clock::time_point SecondStart;
 
 
 		static void initialize();
