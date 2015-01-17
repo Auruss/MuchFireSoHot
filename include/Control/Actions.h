@@ -1,0 +1,5 @@
+#pragma once
+
+
+#define CONTROL_ACTION_UNKNOWN 0
+#define CONTROL_ACTION_TOGGLE_EDITOR_MODE 1

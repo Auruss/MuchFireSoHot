@@ -4,11 +4,10 @@
 #include <vector>
 #include <map>
 
-
 // Locals
 #include <Level/Model/Chunk.h>
-#include <Level/Model/Background.h>
-#include <Level/LevelTrigger.h>
+#include <Level/Renderer/Base.h>
+#include <Level/Model/Layer.h>
 
 namespace Level {
 	namespace Model {
@@ -22,11 +21,10 @@ namespace Level {
 			uint32_t ChunksY; // Count of Chunks on Y-Axis
 			uint32_t ChunkScale; // width and height of one chunk
 
-			std::vector<Model::Chunk*> Chunks; // Chunks (column major allocated)
+			//std::vector<Model::Chunk*> Chunks; // Chunks (column major allocated)
+			std::vector<Model::Layer*> Layers;
 
-
-			Model::Background* Background; // Background layer
-
+			Level::Renderer::Base* Renderer;
 
 			/**
 				Calculates the amount of required local memory.

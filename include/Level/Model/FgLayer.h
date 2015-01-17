@@ -1,16 +1,12 @@
 #pragma once
 
-#include <glm/vec3.hpp>
+#include <Level/Model/Layer.h>
 
 namespace Level {
 	namespace Model {
-
-		class Background {
-
+		class FgLayer : public Layer {
 		public:
-			glm::vec3 BgColor;
 
 		};
-
 	}
 }
