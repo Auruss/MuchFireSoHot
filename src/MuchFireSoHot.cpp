@@ -52,9 +52,13 @@ void prepare_test() {
 	test_layer->Y = 10;
 	test_layer->Scale = 10;
 	test_layer->Renderer = new Level::Renderer::Layer(test_layer);
+	test_layer->updateChanges();
 
 	// add layers
 	current_level->Layers.push_back(test_layer);
+
+	// editor
+	global_controls->LevelEditor->setCurrentLevel(current_level);
 }
 
 
@@ -101,7 +105,7 @@ void init_gl(int width, int height) {
 		printf("glfwCreateWindow() failed\n");
 		exit(1);
 	}
-	glfwSwapInterval(1);
+	//glfwSwapInterval(1);
 	glfwMakeContextCurrent(window);
 
 	GLenum err = glewInit();

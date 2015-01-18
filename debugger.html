@@ -17,52 +17,93 @@
     <!-- Debug GUI -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
 
+    <!-- Editor UI -->
+    <script type="text/javascript">
+        var jsEditor_Layer = function() {
+            this.pos_x = 0;
+            this.pos_y = 0;
+        };
+
+        var jsEditor_Layer = {
+            'pos_x': 0,
+            'pos_y': 0
+        };
+
+        var jsEditor_visible = false;
+        var jsEditor_datgui = 0;
+        var jsEditor_module = 0;
+
+        var jsEditor_init = function(mod) {
+            jsEditor_module = mod;
+        };
+
+        var jsEditor_posChange = function(data) {
+            _editor_update_vals();
+        };
+
+        var jsEditor_toggle = function () {
+            if (jsEditor_visible == false) {
+                jsEditor_datgui = new dat.GUI();
+                jsEditor_datgui.add(jsEditor_Layer, 'pos_x', -100, 100).onChange(jsEditor_posChange);
+                jsEditor_datgui.add(jsEditor_Layer, 'pos_y', -100, 100).onChange(jsEditor_posChange);
+            } else {
+                jsEditor_destroy();
+            }
+
+            jsEditor_visible = !jsEditor_visible;
+        };
+
+        var jsEditor_destroy = function () {
+            $('div.dg.ac').remove();
+        };
+    </script>
+
     <style>
         #webgl-output {
-            width: 1200px;
-            height: 900px;
+        width: 1200px;
+        height: 900px;
 
-            background-color: #333333;
-            color: #efefef;
+        background-color: #333333;
+        color: #efefef;
 
-            border-color: black;
-            border-width: 3px;
+        border-color: black;
+        border-width: 3px;
 
-            margin-left: auto;
-            margin-right: auto;
-            margin-bottom: 35px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 35px;
         }
 
         #console-output {
-            overflow: auto;
+        overflow: auto;
 
-            width: 1000px;
-            height: 650px;
+        width: 1000px;
+        height: 650px;
 
-            background-color: #333333;
-            color: #efefef;
+        background-color: #333333;
+        color: #efefef;
 
-            border-color: black;
-            border-width: 3px;
+        border-color: black;
+        border-width: 3px;
 
-            margin-left: auto;
-            margin-right: auto;
+        margin-left: auto;
+        margin-right: auto;
         }
 
         #console-output span {
-            display:block;
+        display:block;
 
-            font-family: monospace;
-            font-size: 16px;
+        font-family: monospace;
+        font-size: 16px;
 
-            margin-left: 5px;
+        margin-left: 5px;
         }
 
         .text-log {
-            color: #efefef;
+        color: #efefef;
         }
         .text-error {
-            color: #ee5f5b;
+        color: #ee5f5b;
         }
     </style>
 </head>
@@ -99,8 +140,7 @@
             return canvas;
         })()
     };
-
-    //var gui = new dat.GUI();
+    jsEditor_init(Module);
 </script>
 
 <script async type="text/javascript" src="build/MuchFireSoHot.js"></script>
