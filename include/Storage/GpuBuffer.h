@@ -2,6 +2,7 @@
 
 #include <Common/GameTime.h>
 #include <Storage/Defragmenter.h>
+#include <Common/LiveLog/Builder.h>
 
 #include <vector>
 #include <cstdio>
@@ -9,7 +10,13 @@
 #include <GL/glew.h>
 
 namespace Storage {
-	
+
+    struct GpuStatsLog {
+        int buffer_id;
+        int bytes;
+        const char* buffer_type;
+    };
+
 	template <class T>
 	class GpuBuffer {
 
@@ -82,12 +89,28 @@ namespace Storage {
 		
 		int _start;
 		int _current;
+
+        GameTimeObj _stats_time;
+        GpuStatsLog _stats;
 	};
 
 	// ############################################################################################
+    static Common::LiveLog::ReflObject __GpuStatsLogRefl;
+    static bool __ReflImplemented = false;
 
 	template <class T>
 	GpuBuffer<T>::GpuBuffer(unsigned int max, unsigned int gl_type) {
+        if(!__ReflImplemented) {
+            __GpuStatsLogRefl.init<GpuStatsLog>();
+            __GpuStatsLogRefl.addMember<int>("buffer_id", offsetof(GpuStatsLog,buffer_id));
+            __GpuStatsLogRefl.addMember<int>("bytes", offsetof(GpuStatsLog,bytes));
+            __GpuStatsLogRefl.addMember<const char*>("buffer_type", offsetof(GpuStatsLog,buffer_type));
+            if(__GpuStatsLogRefl.sizeOf() != sizeof(GpuStatsLog)) {
+                fprintf(stderr, "Reflection failed for GpuBuffer\n");
+            }
+            __ReflImplemented = true;
+        }
+
 		_gl_type = gl_type;
 		_data = new T[max];
 
@@ -97,6 +120,10 @@ namespace Storage {
 		glGenBuffers(1, &_gl_id);
 		glBindBuffer(_gl_type, _gl_id);
 		glBufferData(_gl_type, sizeof(T) * max, NULL, GL_DYNAMIC_DRAW);
+
+        _stats.buffer_id = _gl_id;
+        _stats.buffer_type = typeid(T).name();
+        _stats.bytes = 0;
 	}
 
 	template <class T>
@@ -172,21 +199,21 @@ namespace Storage {
 
 	template <class T>
 	void GpuBuffer<T>::uploadChanges() {
-		static int call_stats = 0;
-		static GameTimeObj stat;
-
 		glBindBuffer(_gl_type, _gl_id);
 
 		unsigned int count = 0;
 		auto updates = _update_defragmenter.defrag(&count);
 		for(auto iter = updates->begin(); iter != updates->end(); iter++) {
+            _stats.bytes += iter->length * sizeof(T);
 			glBufferSubData(_gl_type, sizeof(T) * iter->index, sizeof(T) * iter->length, (void*)(_data+iter->index));
 		}
 		updates->clear();
 
-		if(Common::GameTime::tickEvery(10000, stat, false)) {
-			printf("%d buffer updates last 10 second. \n", call_stats);
-			call_stats = 0;
+		if(Common::GameTime::tickEvery(500, _stats_time, false)) {
+            Common::LiveLog::Builder builder(LOG_STATS_GPU_BUFFER);
+            builder.addRefObj("stats", &__GpuStatsLogRefl, (void*)&_stats);
+            builder.push();
+            _stats.bytes = 0;
 		}
 	}
 }

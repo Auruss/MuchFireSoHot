@@ -18,6 +18,9 @@
 
 #include <OpenGL/Global.h>
 
+#include <Common/LiveLog/Reflection.h>
+#include <Common/LiveLog/Builder.h>
+
 GameTimeObj fps_debugger;
 
 
@@ -34,6 +37,12 @@ Level::Model::Base* current_level = NULL;
 
 Control::Mapper* mapper = NULL;
 Control::Global* global_controls = NULL;
+
+
+struct FpsLog {
+    int fps;
+};
+static Common::LiveLog::ReflObject FpsLogRefl;
 
 
 // prepare test system
@@ -72,9 +81,19 @@ void mainloop()
 
 	// update
 	Common::GameTime::on_frame();
-	if (Common::GameTime::tickEvery(10000, fps_debugger, false)) { // print every 10 seconds the fps
+	/*if (Common::GameTime::tickEvery(10000, fps_debugger, false)) { // print every 10 seconds the fps
 		printf("FPS Debugger Tick: %d\n", Common::GameTime::FPS);
-	}
+	}*/
+    if(Common::GameTime::tickEvery(500, fps_debugger, false)) {
+        FpsLog log;
+        log.fps = Common::GameTime::FPS;
+
+        Common::LiveLog::Builder builder(LOG_STATS_FPS);
+        builder.setMessage("5 secs elapsed, time for logging");
+        builder.addRefObj("fps", &FpsLogRefl, (void*)&log);
+        builder.push();
+    }
+
 	current_level->Renderer->update();
 	OpenGL::Global::update();
 
@@ -173,11 +192,18 @@ int main(int argc, char* argv [])
 	mapper = new Control::Mapper();
 	global_controls = new Control::Global(test_flag);
 
+    FpsLogRefl.init<FpsLog>();
+    FpsLogRefl.addMember<int>("fps", offsetof(FpsLog, fps));
+    if(FpsLogRefl.sizeOf() != sizeof(FpsLog)) {
+        fprintf(stderr, "Reflection error!\n");
+        return 1;
+    }
+
 	if (test_flag) {
 		printf("Started developer test\n");
 		prepare_test();
 	}
 
-	emscripten_set_main_loop(mainloop, 60, true);
+	emscripten_set_main_loop(mainloop, 0, true);
 	return 0;
 }
