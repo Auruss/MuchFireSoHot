@@ -79,8 +79,8 @@ var LiveLog_Types = {
                           text: "GPU Buffer Changes"
                       },
                       axisY:{
-                          interval: 20,
-                          maximum: 300,
+                          interval: 750,
+                          maximum: 10000,
                           minimum: 0
                       },
                       data: [
