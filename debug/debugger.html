@@ -2,6 +2,8 @@
 <html lang="en-us">
 
 <head>
+    <title>Hello Debug 1</title>
+
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 
@@ -17,8 +19,19 @@
     <!-- Debug GUI -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
 
+    <!-- Live Log-->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.4.1/canvas.min.js"></script>
+    <script type="text/javascript" src="livelog-helper.js"></script>
+    <script type="text/javascript" src="livelog-types.js"></script>
+    <script type="text/javascript" src="livelog.js"></script>
+
     <!-- Editor UI -->
     <script type="text/javascript">
+        var graph_graph;
+        var graph_data;
+        var graph_counter;
+
         var jsEditor_Layer = function() {
             this.pos_x = 0;
             this.pos_y = 0;
@@ -57,6 +70,7 @@
             $('div.dg.ac').remove();
         };
     </script>
+
 
     <style>
         #webgl-output {
@@ -105,14 +119,44 @@
         .text-error {
         color: #ee5f5b;
         }
+
+        #livelog-table tbody tr td {
+            vertical-align: middle;
+        }
+
+        #live-log-graph {
+            width: 500px;
+            height: 300px;
+        }
     </style>
 </head>
 
 <body>
+    <div id="graphModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Graph</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="live-log-graph"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="webgl-output">
         <canvas id="webgl-canvas">
 
         </canvas>
+    </div>
+
+    <div id="livelog">
+
     </div>
 
     <div id="console-output">
@@ -141,8 +185,13 @@
         })()
     };
     jsEditor_init(Module);
+    LiveLog_init("#livelog");
+
+    $("#graphModal").draggable({
+        handle: ".modal-header"
+    });
 </script>
 
-<script async type="text/javascript" src="build/MuchFireSoHot.js"></script>
+<script async type="text/javascript" src="../build/MuchFireSoHot.js"></script>
 
 </html>

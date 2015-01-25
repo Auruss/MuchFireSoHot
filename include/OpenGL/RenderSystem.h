@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <Common/GameTime.h>
 
 namespace OpenGL {
 	
@@ -18,6 +19,11 @@ namespace OpenGL {
 			unsigned int offset;
 			unsigned int count;
 		};
+
+        struct LogStatsDrawCalls {
+            int draw_calls;
+            int faces;
+        };
 
 	public:
 		RenderSystem(unsigned int index_buffer, unsigned int program);
@@ -38,6 +44,9 @@ namespace OpenGL {
 		unsigned int _index_buffer;
 
 		std::vector<render_job> _render_jobs;
+
+        LogStatsDrawCalls _stats;
+        GameTimeObj _stats_timer;
 	};
 
 }
