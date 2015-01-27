@@ -165,5 +165,14 @@ var LiveLog_Types = {
               })
           }
       }
+  },
+  "LOG_CRITICAL_RENDER_ERROR": {
+      "id": 3,
+      "description": "Critical render errors",
+      "option_defaults": {
+          "DISPLAY": true,
+          "STACK": false,
+          "BREAKPOINT": true
+      }
   }
 };

@@ -63,8 +63,16 @@ void prepare_test() {
 	test_layer->Renderer = new Level::Renderer::Layer(test_layer);
 	test_layer->updateChanges();
 
+    auto test_layer2 = new Level::Model::Layer();
+    test_layer2->X = 20;
+    test_layer2->Y = 50;
+    test_layer2->Scale = 40;
+    test_layer2->Renderer = new Level::Renderer::Layer(test_layer);
+    test_layer2->updateChanges();
+
 	// add layers
 	current_level->Layers.push_back(test_layer);
+    current_level->Layers.push_back(test_layer2);
 
 	// editor
 	global_controls->LevelEditor->setCurrentLevel(current_level);
