@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Common/GameTime.h>
+#include <Storage/IGpuBuffer.h>
 #include <Storage/Defragmenter.h>
 #include <Common/LiveLog/Builder.h>
 
@@ -18,7 +19,7 @@ namespace Storage {
     };
 
 	template <class T>
-	class GpuBuffer {
+	class GpuBuffer : IGpuBuffer {
 
 	public:
 		

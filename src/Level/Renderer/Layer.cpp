@@ -3,15 +3,12 @@
 
 #include <OpenGL/Global.h>
 
-
 using namespace Level;
 using namespace Level::Renderer;
 
 Layer::Layer(Model::Layer* layer) {
 	_model = layer;
-	_buffer_index = OpenGL::Global::g_pIndexBuffer->request(6);
-	OpenGL::Global::g_pPositionBuffer->request(4);
-	OpenGL::Global::g_pColorBuffer->request(4);
+    _buffer = OpenGL::Global::g_pLayerRenderSystem->requestCombined(4, 6);
 
     full_vertices_update();
 }
@@ -29,7 +26,7 @@ void Layer::update() {
 }
 
 void Layer::render() {
-	OpenGL::Global::g_pLayerRenderSystem->enqueueRenderJob(0, 6);
+	OpenGL::Global::g_pLayerRenderSystem->enqueueRenderJob(_buffer.index, 6);
 }
 
 // ------------------------------------------------------------------------
@@ -41,7 +38,7 @@ void Layer::full_vertices_update() {
 }
 
 void Layer::position_update() {
-    OpenGL::Global::g_pPositionBuffer->beginUpdate(_buffer_index);
+    OpenGL::Global::g_pPositionBuffer->beginUpdate(_buffer.vindex);
 
     glm::vec3* pos = OpenGL::Global::g_pPositionBuffer->next();
     *pos = glm::vec3(_model->X / 100.0f, _model->Y / 100.0f, 1.0f);
@@ -58,7 +55,7 @@ void Layer::position_update() {
     OpenGL::Global::g_pPositionBuffer->endUpdate();
 }
 void Layer::color_update() {
-    OpenGL::Global::g_pColorBuffer->beginUpdate(_buffer_index);
+    OpenGL::Global::g_pColorBuffer->beginUpdate(_buffer.vindex);
 
     glm::vec4* color = OpenGL::Global::g_pColorBuffer->next();
     *color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
@@ -75,12 +72,12 @@ void Layer::color_update() {
     OpenGL::Global::g_pColorBuffer->endUpdate();
 }
 void Layer::index_update() {
-    OpenGL::Global::g_pIndexBuffer->beginUpdate(_buffer_index);
-    *OpenGL::Global::g_pIndexBuffer->next() = 0;
-    *OpenGL::Global::g_pIndexBuffer->next() = 1;
-    *OpenGL::Global::g_pIndexBuffer->next() = 2;
-    *OpenGL::Global::g_pIndexBuffer->next() = 2;
-    *OpenGL::Global::g_pIndexBuffer->next() = 3;
-    *OpenGL::Global::g_pIndexBuffer->next() = 0;
+    OpenGL::Global::g_pIndexBuffer->beginUpdate(_buffer.index);
+    *OpenGL::Global::g_pIndexBuffer->next() = 0 + _buffer.vindex;
+    *OpenGL::Global::g_pIndexBuffer->next() = 1 + _buffer.vindex;
+    *OpenGL::Global::g_pIndexBuffer->next() = 2 + _buffer.vindex;
+    *OpenGL::Global::g_pIndexBuffer->next() = 2 + _buffer.vindex;
+    *OpenGL::Global::g_pIndexBuffer->next() = 3 + _buffer.vindex;
+    *OpenGL::Global::g_pIndexBuffer->next() = 0 + _buffer.vindex;
     OpenGL::Global::g_pIndexBuffer->endUpdate();
 }

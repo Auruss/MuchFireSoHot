@@ -1,15 +1,23 @@
 #pragma once
 
 #include <vector>
+
+#include <glm/glm.hpp>
+#include <GL/glew.h>
+
 #include <Common/GameTime.h>
+#include <Common/LiveLog/Builder.h>
+#include <Storage/IGpuBuffer.h>
+#include <Storage/GpuBuffer.h>
+#include <Storage/Defragmenter.h>
 
 namespace OpenGL {
-	
+
 	class RenderSystem {
 
 	private:
 		struct buffer_settings {
-			unsigned int id;
+            Storage::IGpuBuffer* owner;
 			unsigned int location;
 			unsigned int type;
 			int count;
@@ -25,28 +33,57 @@ namespace OpenGL {
             int faces;
         };
 
-	public:
-		RenderSystem(unsigned int index_buffer, unsigned int program);
+    public:
+        struct Combined {
+            int index;
+            int vindex;
+        };
 
-		void addBuffer(unsigned int gl, char* shader_param_name, unsigned int type, int count);
+	public:
+		RenderSystem(unsigned int program, Storage::GpuBuffer<unsigned int>* index_buffer);
+
+        template <class T>
+        void addGpuBuffer(const char* program_eq, Storage::GpuBuffer<T>* buffer);
+
+        Combined requestCombined(int vertices, int indices);
 
 		void enqueueRenderJob(unsigned int offset, unsigned int count);
 
-		void defragedRender();
-		void fragedRender();
-
+		void render();
 
 	private:
+        unsigned int attribLocation(const char* eq);
 		void bindBuffers();
 
 		std::vector<buffer_settings> _buffers;
 		unsigned int _program;
-		unsigned int _index_buffer;
-
-		std::vector<render_job> _render_jobs;
+        Storage::GpuBuffer<unsigned int>* _index_buffer;
+        Storage::Defragmenter _render_jobs;
 
         LogStatsDrawCalls _stats;
         GameTimeObj _stats_timer;
 	};
 
+
+    template <class T>
+    void RenderSystem::addGpuBuffer(const char* program_eq, Storage::GpuBuffer<T>* buffer) {
+        buffer_settings set;
+        set.owner = (Storage::IGpuBuffer*) buffer;
+        set.location = attribLocation(program_eq);
+
+        if(typeid(T) == typeid(glm::vec4)) {
+            set.type = GL_FLOAT;
+            set.count = 4;
+        } else if (typeid(T) == typeid(glm::vec3)) {
+            set.type = GL_FLOAT;
+            set.count = 3;
+        } else {
+            Common::LiveLog::Builder builder(LOG_CRITICAL_RENDER_ERROR);
+            builder.setMessage("[RenderSystem] Unknown gpu buffer type: '%s'", typeid(T).name());
+            builder.push();
+            return;
+        }
+
+        _buffers.push_back(set);
+    }
 }

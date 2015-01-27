@@ -4,8 +4,6 @@
 #include <Common/GameTime.h>
 #include <Common/LiveLog/Builder.h>
 
-#include <GL/glew.h>
-
 
 using namespace OpenGL;
 
@@ -13,7 +11,7 @@ static Common::LiveLog::ReflObject __LogStatsDrawCallsRefl;
 static bool __ReflectionImpl = false;
 
 
-RenderSystem::RenderSystem(unsigned int index_buffer, unsigned int program) {
+RenderSystem::RenderSystem(unsigned int program, Storage::GpuBuffer<unsigned int>* index_buffer) {
     if(!__ReflectionImpl) {
         __LogStatsDrawCallsRefl.init<LogStatsDrawCalls>();
         __LogStatsDrawCallsRefl.addMember<int>("draw_calls", offsetof(LogStatsDrawCalls,draw_calls));
@@ -22,62 +20,76 @@ RenderSystem::RenderSystem(unsigned int index_buffer, unsigned int program) {
     }
 
 	_program = program;
-	_index_buffer = index_buffer;
+    _index_buffer = index_buffer;
     _stats.draw_calls = 0;
     _stats.faces = 0;
 }
 
 // --------------------------------------------
 
-void RenderSystem::addBuffer(unsigned int gl, char* shader_param_name, unsigned int type, int count) {
-	buffer_settings set;
-	set.id = gl;
-	set.location = glGetAttribLocation(_program, shader_param_name);
-	set.type = type;
-	set.count = count;
-
-	_buffers.push_back(set);
-}
-
 
 void RenderSystem::enqueueRenderJob(unsigned int offset, unsigned int count) {
-	render_job job;
-	job.count = count;
-	job.offset = offset;
-	_render_jobs.push_back(job);
+	_render_jobs.addFragment(offset, count);
 }
 
 // ---------------------------------------------
+
+RenderSystem::Combined RenderSystem::requestCombined(int vertices, int indices) {
+    int index = _index_buffer->request(indices);
+
+    int vindex = 0;
+    for(auto iter = _buffers.begin(); iter != _buffers.end(); iter++) {
+        if(iter == _buffers.begin()) {
+            vindex = iter->owner->request(vertices);
+            continue;
+        }
+        if(vindex != iter->owner->request(vertices)) {
+            Common::LiveLog::Builder builder(LOG_CRITICAL_RENDER_ERROR);
+            builder.setMessage("[RenderSystem] Buffers are out of sync");
+            builder.push();
+            return RenderSystem::Combined();
+        }
+    }
+
+    RenderSystem::Combined res;
+    res.index = index;
+    res.vindex = vindex;
+    return res;
+}
+
+// ---------------------------------------------
+
+unsigned int RenderSystem::attribLocation(const char* eq) {
+    return (unsigned int)glGetAttribLocation(_program, eq);
+}
 
 void RenderSystem::bindBuffers() {
 	glUseProgram(_program);
 
 	for (auto iter = _buffers.begin(); iter != _buffers.end(); iter++) {
-		glBindBuffer(GL_ARRAY_BUFFER, iter->id);
+		glBindBuffer(GL_ARRAY_BUFFER, iter->owner->getInternId());
 		glEnableVertexAttribArray(iter->location);
 		glVertexAttribPointer(iter->location, iter->count, iter->type, GL_FALSE, 0, 0);
 	}
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _index_buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _index_buffer->getInternId());
 }
 
 // ---------------------------------------------
 
 
-void RenderSystem::defragedRender() {
-	bindBuffers();
-	
-	_render_jobs.clear();
-}
-
-void RenderSystem::fragedRender() {
+void RenderSystem::render() {
 	bindBuffers();
 
-	for (auto iter = _render_jobs.begin(); iter != _render_jobs.end(); iter++) {
-		glDrawElements(GL_TRIANGLES, iter->count, GL_UNSIGNED_INT, (GLvoid*)iter->offset);
+    unsigned int count = 0;
+    auto vector = _render_jobs.defrag(&count);
+
+	for (auto iter = vector->begin(); iter != vector->end(); iter++) {
+		glDrawElements(GL_TRIANGLES, iter->length, GL_UNSIGNED_INT, (GLvoid*)iter->index);
         _stats.draw_calls++;
-        _stats.faces += iter->count / 3;
+        _stats.faces += iter->length / 3;
 	}
+    vector->clear();
 
 	if(Common::GameTime::tickEvery(500, _stats_timer, false)) {
         Common::LiveLog::Builder builder(LOG_STATS_DRAW_CALLS);
@@ -86,6 +98,4 @@ void RenderSystem::fragedRender() {
         _stats.faces = 0;
         _stats.draw_calls = 0;
 	}
-
-	_render_jobs.clear();
 }

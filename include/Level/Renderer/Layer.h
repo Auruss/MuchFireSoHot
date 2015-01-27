@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include <OpenGL/RenderSystem.h>
+
 namespace Level {
 	namespace Model { class Layer; }
 
@@ -16,7 +18,7 @@ namespace Level {
 			Model::Layer* _model;
 
 		private:
-			int _buffer_index;
+			OpenGL::RenderSystem::Combined _buffer;
 
 
 			void full_vertices_update();

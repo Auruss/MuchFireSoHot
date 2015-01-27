@@ -41,10 +41,11 @@ void OpenGL::Global::init() {
 
 
 	// initialize render system
-	g_pLayerRenderSystem = new OpenGL::RenderSystem(g_pIndexBuffer->getInternId(),
-			OpenGL::Helper::createProgramFromMemory(vertex_shader, frag_shader));
-	g_pLayerRenderSystem->addBuffer(g_pPositionBuffer->getInternId(), (char*)"vPosition", GL_FLOAT, 3);
-	g_pLayerRenderSystem->addBuffer(g_pColorBuffer->getInternId(), (char*)"vColor", GL_FLOAT, 4);
+	g_pLayerRenderSystem = new OpenGL::RenderSystem(
+            OpenGL::Helper::createProgramFromMemory(vertex_shader, frag_shader), g_pIndexBuffer);
+
+    g_pLayerRenderSystem->addGpuBuffer("vPosition", g_pPositionBuffer);
+    g_pLayerRenderSystem->addGpuBuffer("vColor", g_pColorBuffer);
 }
 
 void OpenGL::Global::update() {
@@ -54,5 +55,5 @@ void OpenGL::Global::update() {
 }
 
 void OpenGL::Global::render() {
-	g_pLayerRenderSystem->fragedRender(); // TODO: Do defraged rendering
+	g_pLayerRenderSystem->render();
 }

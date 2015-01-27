@@ -73,6 +73,10 @@ var LiveLog_push = function(builder) {
         }
         return;
     }
+    else if (log_type.option_defaults.BREAKPOINT == true) {
+        console.log(Module.stackTrace());
+        debugger;
+    }
 
     var html = "<tr>";
     html += "<td><a href='#'>" + log_type.key + "</a></td>";
