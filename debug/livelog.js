@@ -1,5 +1,6 @@
 // LiveLog ----------------------------
 var LiveLog_active_stack = [];
+var LiveLog_object_cache = [];
 
 var LiveLog_init = function(table) {
     var html = "<table id='livelog-table' class='table table-hover'>";
@@ -78,15 +79,43 @@ var LiveLog_push = function(builder) {
         debugger;
     }
 
+    LiveLog_object_cache[LiveLog_object_cache.length] = builder.parsed_refs;
+    var cache_id = LiveLog_object_cache.length - 1;
+
     var html = "<tr>";
     html += "<td><a href='#'>" + log_type.key + "</a></td>";
     html += "<td>" + builder.msg + "</td>";
     html += "<td align='right'>" + 1 + "</td>";
-    html += "<td>" + "<a href='#'>Show objects</a>" + "</td>";
+    html += "<td>" + "<button class='btn btn-success btn-sm' onclick='LiveLog_showObjects("+cache_id+");'>Show objects</button>" + "</td>";
     html += "</tr>";
     $("#livelog-table").append(html);
 };
 
+var LiveLog_json = {
+    replacer: function(match, pIndent, pKey, pVal, pEnd) {
+        var key = '<span class=json-key>';
+        var val = '<span class=json-value>';
+        var str = '<span class=json-string>';
+        var r = pIndent || '';
+        if (pKey)
+            r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+        if (pVal)
+            r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+        return r + (pEnd || '');
+    },
+    prettyPrint: function(obj) {
+        var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+        return JSON.stringify(obj, null, 3)
+            .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
+            .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(jsonLine, LiveLog_json.replacer);
+    }
+};
+
+var LiveLog_showObjects = function(id) {
+    $("#live-log-graph").html("<pre>"+LiveLog_json.prettyPrint(LiveLog_object_cache[id])+"</pre>");
+    $("#graphModal").modal({'backdrop': false});
+};
 
 var LiveLog_getLogType = function(id) {
     for(var key in LiveLog_Types) {
@@ -110,7 +139,7 @@ LiveLogBuilder.prototype.init = function(id) {
     this.refs = [];
     this.parsed_refs = [];
     this.options = [];
-    this.msg = 'No message defined';
+    this.msg = LiveLog_getLogType(id).description;
 };
 
 LiveLogBuilder.prototype.setMessage = function(msg) {
@@ -119,7 +148,7 @@ LiveLogBuilder.prototype.setMessage = function(msg) {
 
 LiveLogBuilder.prototype.addReferenceObject = function(name, obj_json) {
     this.refs[this.refs.length] = { 'name': Pointer_stringify(name), 'value': Pointer_stringify(obj_json) };
-    this.parsed_refs = $.extend(this.parsed_refs, JSON.parse(this.refs[this.refs.length-1].value));
+    this.parsed_refs = $.extend({}, this.parsed_refs, JSON.parse(this.refs[this.refs.length-1].value));
 };
 
 

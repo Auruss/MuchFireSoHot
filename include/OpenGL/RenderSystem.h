@@ -51,6 +51,8 @@ namespace OpenGL {
 
 		void render();
 
+        unsigned int getProgram() { return _program; }
+
 	private:
         unsigned int attribLocation(const char* eq);
 		void bindBuffers();
@@ -76,6 +78,9 @@ namespace OpenGL {
             set.count = 4;
         } else if (typeid(T) == typeid(glm::vec3)) {
             set.type = GL_FLOAT;
+            set.count = 3;
+        } else if (typeid(T) == typeid(glm::ivec3)) {
+            set.type = GL_INT;
             set.count = 3;
         } else {
             Common::LiveLog::Builder builder(LOG_CRITICAL_RENDER_ERROR);

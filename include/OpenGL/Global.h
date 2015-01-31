@@ -4,6 +4,7 @@
 
 #include <OpenGL/RenderSystem.h>
 #include <Storage/GpuBuffer.h>
+#include <Control/Camera.h>
 
 namespace OpenGL {
 namespace Global {
@@ -14,7 +15,9 @@ namespace Global {
 	extern Storage::GpuBuffer<glm::vec3>* g_pPositionBuffer;
 	extern Storage::GpuBuffer<glm::vec4>* g_pColorBuffer;
 
-	extern void init();
+    extern Control::Camera* g_pCamera;
+
+	extern void init(int width, int height);
 	extern void update();
 	extern void render();
 }

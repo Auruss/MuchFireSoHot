@@ -2,6 +2,7 @@
 #include <Level/Model/Layer.h>
 
 #include <OpenGL/Global.h>
+#include <Storage/Geometry.h>
 
 using namespace Level;
 using namespace Level::Renderer;
@@ -18,11 +19,17 @@ Layer::Layer(Model::Layer* layer) {
 void Layer::update() {
 	if (!_model->hasChanges()) return; // skip unnecessary ifs
 
-	// check whether vertices update is required
-	if(_model->X.hasChanged() || _model->Y.hasChanged() || _model->Scale.hasChanged()) {
+	// position update
+	if(_model->X.hasChanged() || _model->Y.hasChanged() || _model->Z.hasChanged()
+            || _model->Width.hasChanged() || _model->Height.hasChanged())
+    {
         position_update();
 	}
 
+    // color update
+    if(_model->Color.hasChanged()) {
+        color_update();
+    }
 }
 
 void Layer::render() {
@@ -40,17 +47,20 @@ void Layer::full_vertices_update() {
 void Layer::position_update() {
     OpenGL::Global::g_pPositionBuffer->beginUpdate(_buffer.vindex);
 
-    glm::vec3* pos = OpenGL::Global::g_pPositionBuffer->next();
-    *pos = glm::vec3(_model->X / 100.0f, _model->Y / 100.0f, 1.0f);
+    /*glm::vec3* pos = OpenGL::Global::g_pPositionBuffer->next();
+    *pos = glm::vec3((float)_model->X, (float)_model->Y, 1.0f);
 
     pos = OpenGL::Global::g_pPositionBuffer->next();
-    *pos = glm::vec3(_model->X / 100.0f, (_model->Y - _model->Scale) / 100.0f, 1.0f);
+    *pos = glm::vec3((float)_model->X, (float)_model->Y + _model->Height, 1.0f);
 
     pos = OpenGL::Global::g_pPositionBuffer->next();
-    *pos = glm::vec3((_model->X + _model->Scale) / 100.0f, (_model->Y - _model->Scale) / 100.0f, 1.0f);
+    *pos = glm::vec3((float)_model->X + _model->Width, (float)_model->Y + _model->Height, 1.0f);
 
     pos = OpenGL::Global::g_pPositionBuffer->next();
-    *pos = glm::vec3((_model->X + _model->Scale) / 100.0f, _model->Y / 100.0f, 1.0f);
+    *pos = glm::vec3((float)_model->X + _model->Width, (float)_model->Y, 1.0f);*/
+    Storage::Geometry::buildQuad(OpenGL::Global::g_pPositionBuffer,
+            glm::vec2((float)_model->X, (float)_model->Y),
+            glm::vec2((float)_model->Width, (float)_model->Height), _model->Z);
 
     OpenGL::Global::g_pPositionBuffer->endUpdate();
 }
@@ -58,16 +68,16 @@ void Layer::color_update() {
     OpenGL::Global::g_pColorBuffer->beginUpdate(_buffer.vindex);
 
     glm::vec4* color = OpenGL::Global::g_pColorBuffer->next();
-    *color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    *color = _model->Color;
 
     color = OpenGL::Global::g_pColorBuffer->next();
-    *color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    *color = _model->Color;
 
     color = OpenGL::Global::g_pColorBuffer->next();
-    *color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    *color = _model->Color;
 
     color = OpenGL::Global::g_pColorBuffer->next();
-    *color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    *color = _model->Color;
 
     OpenGL::Global::g_pColorBuffer->endUpdate();
 }

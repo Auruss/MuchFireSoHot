@@ -20,3 +20,11 @@ void Global::onAction(int action_code) {
 		}
 	}
 }
+
+void Global::onSingleClick() {
+    LevelEditor->onClick();
+}
+
+void Global::onDrag(int startX, int startY, int state, int mods) {
+    LevelEditor->onDrag(startX, startY, state, mods);
+}

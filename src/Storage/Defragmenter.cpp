@@ -11,6 +11,7 @@ void Defragmenter::addFragment(int index, int length) {
 		// is fragment before?
 		if(iter->index == (index+length)) {
 			iter->index -= length;
+            iter->length += length;
 			_defrag_count++;
 			return;
 		}

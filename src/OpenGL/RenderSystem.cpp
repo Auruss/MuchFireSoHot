@@ -85,7 +85,7 @@ void RenderSystem::render() {
     auto vector = _render_jobs.defrag(&count);
 
 	for (auto iter = vector->begin(); iter != vector->end(); iter++) {
-		glDrawElements(GL_TRIANGLES, iter->length, GL_UNSIGNED_INT, (GLvoid*)iter->index);
+		glDrawElements(GL_TRIANGLES, iter->length, GL_UNSIGNED_INT, (GLvoid*)(iter->index*sizeof(unsigned int)));
         _stats.draw_calls++;
         _stats.faces += iter->length / 3;
 	}

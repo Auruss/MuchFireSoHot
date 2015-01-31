@@ -174,5 +174,24 @@ var LiveLog_Types = {
           "STACK": false,
           "BREAKPOINT": true
       }
+  },
+  "LOG_PROGRAM_MVP": {
+      "id": 4,
+      "description": "MVP Uniform changed / has to change",
+      "option_defaults": {
+          "DISPLAY": true,
+          "STACK": false,
+          "BREAKPOINT": false
+      }
+  },
+
+  "LOG_EDITOR": {
+      "id": 5,
+      "description": "Editor related logs",
+      "option_defaults": {
+          "DISPLAY": true,
+          "STACK": false,
+          "BREAKPOINT": false
+      }
   }
 };
