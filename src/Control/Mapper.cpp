@@ -13,6 +13,5 @@ int Mapper::mapGLFWinput(int key_code, int mode, int mod) {
 		return CONTROL_ACTION_TOGGLE_EDITOR_MODE;
 	}
 
-
 	return CONTROL_ACTION_UNKNOWN;
 }

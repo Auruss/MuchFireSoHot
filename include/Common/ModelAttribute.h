@@ -21,6 +21,18 @@ namespace Common {
 			return _value;
 		}
 
+        T& operator += (T right) {
+            _value += right;
+            _hasChanged = true;
+            return _value;
+        }
+
+        T& operator -= (T right) {
+            _value -= right;
+            _hasChanged = true;
+            return _value;
+        }
+
 		operator T() {
 			return _value;
 		}

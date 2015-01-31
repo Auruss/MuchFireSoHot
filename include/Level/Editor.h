@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Level/Model/Base.h>
+#include <OpenGL/RenderSystem.h>
 
-extern "C" void editor_update_vals();
+extern "C" void editor_update_vals(int type);
 
 namespace Level {
 	class Editor {
@@ -11,16 +12,29 @@ namespace Level {
 
 		void toggle();
 
-		void onClick(int x, int y, bool right);
-		void onDrag(int x, int y, bool right);
+		void onClick();
+		void onDrag(int x, int y, int state, int mods);
 
-		void setCurrentLevel(Model::Base* lvl) {_current_level = lvl; }
+        void updatePositions();
+        void render();
+
+		void setCurrentLevel(Model::Base* lvl);
+        void setCurrentLayer(Model::Layer* layer);
+
 		Model::Base* getCurrentLevel() { return _current_level; }
+        Model::Layer* getCurrentLayer() { return _current_layer; }
+
 
 		static Editor* Instance;
 
 	private:
-		bool _isActivated;
+        void initial_buffer();
+
+        bool _isActivated;
+
 		Model::Base* _current_level;
+        Model::Layer* _current_layer;
+
+        OpenGL::RenderSystem::Combined _buffer;
 	};
 }

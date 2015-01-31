@@ -92,8 +92,10 @@ void Builder::jsonify_value(const char* type, char* data, std::stringstream& str
     if(std::strcmp(typeid(int).name(), type) == 0) {
         int* pval = (int*)(data);
         str << *pval;
-    }
-    else {
+    } else if(std::strcmp(typeid(float).name(), type) == 0) {
+        float* pval = (float*)(data);
+        str << *pval;
+    } else {
         str << "\"{unknown type: " << type << "}\"";
     }
 }

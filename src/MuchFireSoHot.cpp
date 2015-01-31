@@ -15,11 +15,13 @@
 
 #include <Control/Mapper.h>
 #include <Control/Global.h>
+#include <Control/Mouse.h>
 
 #include <OpenGL/Global.h>
 
 #include <Common/LiveLog/Reflection.h>
 #include <Common/LiveLog/Builder.h>
+#include <Common/LiveLog/CommonReflections.h>
 
 GameTimeObj fps_debugger;
 
@@ -59,20 +61,37 @@ void prepare_test() {
 	auto test_layer = new Level::Model::Layer();
 	test_layer->X = 10;
 	test_layer->Y = 10;
-	test_layer->Scale = 10;
+    test_layer->Z = 1;
+	test_layer->Width = 10;
+    test_layer->Height = 10;
+    test_layer->Color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
 	test_layer->Renderer = new Level::Renderer::Layer(test_layer);
 	test_layer->updateChanges();
 
     auto test_layer2 = new Level::Model::Layer();
     test_layer2->X = 20;
     test_layer2->Y = 50;
-    test_layer2->Scale = 40;
-    test_layer2->Renderer = new Level::Renderer::Layer(test_layer);
+    test_layer2->Z = 2;
+    test_layer2->Width = 50;
+    test_layer2->Height = 50;
+    test_layer2->Color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    test_layer2->Renderer = new Level::Renderer::Layer(test_layer2);
     test_layer2->updateChanges();
+
+    auto test_layer_full = new Level::Model::Layer();
+    test_layer_full->X = 0;
+    test_layer_full->Y = 0;
+    test_layer_full->Z = 1;
+    test_layer_full->Width = 500;
+    test_layer_full->Height = 500;
+    test_layer_full->Color = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+    test_layer_full->Renderer = new Level::Renderer::Layer(test_layer_full);
+    test_layer_full->updateChanges();
 
 	// add layers
 	current_level->Layers.push_back(test_layer);
     current_level->Layers.push_back(test_layer2);
+    current_level->Layers.push_back(test_layer_full);
 
 	// editor
 	global_controls->LevelEditor->setCurrentLevel(current_level);
@@ -86,6 +105,7 @@ void mainloop()
 {
 	// poll changes
 	glfwPollEvents();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	// update
 	Common::GameTime::on_frame();
@@ -105,14 +125,20 @@ void mainloop()
 	current_level->Renderer->update();
 	OpenGL::Global::update();
 
-	//render
-	glClear(GL_COLOR_BUFFER_BIT);
-
-
+    // render
 	current_level->Renderer->render();
+    global_controls->LevelEditor->render();
 	OpenGL::Global::render();
 
 	glfwSwapBuffers(window);
+}
+
+void on_single_click() {
+    global_controls->onSingleClick();
+}
+
+void on_drag(int x, int y, int state, int mods) {
+    global_controls->onDrag(x, y, state, mods);
 }
 
 void on_glfw_key_input(GLFWwindow* window, int key, int scan_code, int action, int mods) {
@@ -166,16 +192,26 @@ void init_gl(int width, int height) {
 
 
 	glClearColor(0.4f, 0.1f, 0.3f, 1.0f);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
 	Common::GameTime::initialize();
-	OpenGL::Global::init();
+	OpenGL::Global::init(width, height);
 
 	// GLFW input
 	glfwSetKeyCallback(window, on_glfw_key_input);
+    glfwSetMouseButtonCallback(window, Control::Mouse::glfw_mouse_button);
+    glfwSetCursorPosCallback(window, Control::Mouse::glfw_mouse_move);
+    Control::Mouse::setOnSingleClick(on_single_click);
+    Control::Mouse::setOnDrag(on_drag);
 }
 
 int main(int argc, char* argv [])
 {
+    Common::LiveLog::init_common_reflections();
+
 	bool test_flag = false;
 	bool fullscreen_flag = false;
 	int resolution_x = 800;

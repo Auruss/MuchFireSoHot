@@ -11,8 +11,9 @@ namespace Level {
 		class Layer : public Common::BaseModel {
 		
 		public:
-			Common::ModelAttribute<int> X, Y;
-			Common::ModelAttribute<float> Scale;
+			Common::ModelAttribute<int> X, Y, Z;
+			Common::ModelAttribute<int> Width, Height;
+            Common::ModelAttribute<glm::vec4> Color;
 
 			Renderer::Layer* Renderer;
 		};
