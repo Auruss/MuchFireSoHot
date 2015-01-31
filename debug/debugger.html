@@ -36,49 +36,17 @@
 
     <style>
         #webgl-output {
-        width: 1200px;
-        height: 900px;
+            width: 1200px;
+            height: 900px;
 
-        background-color: #333333;
-        color: #efefef;
+            background-color: #333333;
+            color: #efefef;
 
-        border-color: black;
-        border-width: 3px;
+            border-color: black;
+            border-width: 3px;
 
-        margin-left: 50px;
-        margin-bottom: 35px;
-        }
-
-        #console-output {
-        overflow: auto;
-
-        width: 1000px;
-        height: 650px;
-
-        background-color: #333333;
-        color: #efefef;
-
-        border-color: black;
-        border-width: 3px;
-
-        margin-left: auto;
-        margin-right: auto;
-        }
-
-        #console-output span {
-        display:block;
-
-        font-family: monospace;
-        font-size: 16px;
-
-        margin-left: 5px;
-        }
-
-        .text-log {
-        color: #efefef;
-        }
-        .text-error {
-        color: #ee5f5b;
+            margin-left: 50px;
+            margin-bottom: 35px;
         }
 
         #livelog-table tbody tr td {
@@ -135,11 +103,6 @@
     <div id="livelog">
 
     </div>
-
-    <div id="console-output">
-        <span style="color: #eeeeee;">Program output: </span>
-        <span style="color: #eeeeee;">Waiting for download... </span>
-    </div>
 </body>
 
 <script>
@@ -150,10 +113,16 @@
         postRun: [],
         arguments: ["--developer-test", "-rx","1200", "-ry","900"],
         print: (function(text) {
-            $("#console-output").append("<span class='text-log'>[LOG]&nbsp;" + text + "</span>");
+            var builder = new LiveLogBuilder();
+            builder.init(6);
+            builder.msg = text;
+            builder.push();
         }),
         printErr: (function(text) {
-            $("#console-output").append("<span class='text-error'>[ERROR]&nbsp;" + text + "</span>");
+            var builder = new LiveLogBuilder();
+            builder.init(7);
+            builder.msg = text;
+            builder.push();
         }),
         canvas: (function() {
             var canvas = document.getElementById('webgl-canvas');
