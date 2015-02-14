@@ -2,18 +2,18 @@ cmake_minimum_required(VERSION 2.8)
 
 # Settings
 if(WIN32)
-	set(EMSCRIPTEN_PREFIX "C:/emscripten")
+    set(EMSCRIPTEN_PREFIX "C:/emscripten")
 else()
-	set(EMSCRIPTEN_PREFIX "/home/developer/emscripten/emscripten/master")
+    set(EMSCRIPTEN_PREFIX "/home/developer/emscripten/emscripten/master")
 endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
 # Globals
 if(WIN32)
-	SET(COMMON_CMDS "--cache C:/.emscripten_cache")
+    SET(COMMON_CMDS "--cache C:/.emscripten_cache")
 else()
-	SET(COMMON_CMDS "")
+    SET(COMMON_CMDS "")
 endif()
 
 if("${EMSCRIPTEN}" STREQUAL "1")
