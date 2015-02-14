@@ -9,6 +9,7 @@
 #include <cstdio>
 
 #include <GL/glew.h>
+#include <OpenGL/StateCache.h>
 
 namespace Storage {
 
@@ -200,7 +201,10 @@ namespace Storage {
 
 	template <class T>
 	void GpuBuffer<T>::uploadChanges() {
-		glBindBuffer(_gl_type, _gl_id);
+        if(_gl_type == GL_ARRAY_BUFFER)
+            OpenGL::StateCache::bindVertexBuffer(_gl_id);
+        else
+            OpenGL::StateCache::bindIndexBuffer(_gl_id);
 
 		unsigned int count = 0;
 		auto updates = _update_defragmenter.defrag(&count);

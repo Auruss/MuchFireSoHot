@@ -1,5 +1,6 @@
 #include <cstdio>
 
+#include <OpenGL/StateCache.h>
 #include <OpenGL/RenderSystem.h>
 #include <Common/GameTime.h>
 #include <Common/LiveLog/Builder.h>
@@ -64,15 +65,15 @@ unsigned int RenderSystem::attribLocation(const char* eq) {
 }
 
 void RenderSystem::bindBuffers() {
-	glUseProgram(_program);
+    if(StateCache::useProgram(_program)) {
+        StateCache::enableAttributes(_buffers.size());
+        for (auto iter = _buffers.begin(); iter != _buffers.end(); iter++) {
+            StateCache::bindVertexBuffer(iter->owner->getInternId());
+            glVertexAttribPointer(iter->location, iter->count, iter->type, GL_FALSE, 0, 0);
+        }
+    }
 
-	for (auto iter = _buffers.begin(); iter != _buffers.end(); iter++) {
-		glBindBuffer(GL_ARRAY_BUFFER, iter->owner->getInternId());
-		glEnableVertexAttribArray(iter->location);
-		glVertexAttribPointer(iter->location, iter->count, iter->type, GL_FALSE, 0, 0);
-	}
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _index_buffer->getInternId());
+    StateCache::bindIndexBuffer(_index_buffer->getInternId());
 }
 
 // ---------------------------------------------
