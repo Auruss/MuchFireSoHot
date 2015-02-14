@@ -16,6 +16,7 @@ namespace Level {
 		void onDrag(int x, int y, int state, int mods);
 
         void updatePositions();
+        void updateJsPositions();
         void render();
 
 		void setCurrentLevel(Model::Base* lvl);

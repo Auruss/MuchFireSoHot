@@ -36,6 +36,7 @@ void editor_update_vals(int type) {
         case UPDATE_TYPE_CAM: {
             OpenGL::Global::g_pCamera->X = EM_ASM_INT_V({return editor_ui_instance.camera.x; });
             OpenGL::Global::g_pCamera->Y = EM_ASM_INT_V({return editor_ui_instance.camera.y; });
+            break;
         };
         case UPDATE_TYPE_REM_LAYER: {
             bool deleted = false;
@@ -69,6 +70,7 @@ void editor_update_vals(int type) {
             layer->Renderer = new Level::Renderer::Layer(layer);
             Editor::Instance->getCurrentLevel()->Layers.push_back(layer);
             Editor::Instance->setCurrentLayer(layer);
+            Editor::Instance->updateJsPositions();
         };
     }
     Editor::Instance->getCurrentLayer()->updateChanges();
@@ -113,6 +115,7 @@ void Editor::onClick() {
 
                 _current_layer = ptr;
                 updatePositions();
+                updateJsPositions();
                 return;
             }
         }
@@ -149,11 +152,11 @@ void Editor::onDrag(int x, int y, int state, int mods) {
 
 // ------------------------------------------------------------------
 
-void Editor::toggle() {
+void Editor::updateJsPositions() {
     glm::vec4 color  = (glm::vec4)_current_layer->Color;
     int dec_color = ((int)(color.r * 255.0f) << 16) + ((int)(color.g * 255.0f) << 8) + (int)(color.b * 255.0f);
 
-	EM_ASM_INT({
+    EM_ASM_INT({
         editor_ui_instance.layer.x = $0;
         editor_ui_instance.layer.y = $1;
         editor_ui_instance.layer.width = $2;
@@ -161,11 +164,21 @@ void Editor::toggle() {
         editor_ui_instance.layer.set_color_int($4);
         editor_ui_instance.camera.x = $5;
         editor_ui_instance.camera.y = $6;
-        editor_ui_instance.setMode(1);
-        editor_ui_instance.toggle();
-	}, (int)_current_layer->X, (int)_current_layer->Y,
+        editor_ui_instance.refreshLayer();
+    }, (int)_current_layer->X, (int)_current_layer->Y,
             (int)_current_layer->Width, (int)_current_layer->Height, dec_color,
             (int) OpenGL::Global::g_pCamera->X, (int) OpenGL::Global::g_pCamera->Y);
+}
+
+void Editor::toggle() {
+    glm::vec4 color  = (glm::vec4)_current_layer->Color;
+    int dec_color = ((int)(color.r * 255.0f) << 16) + ((int)(color.g * 255.0f) << 8) + (int)(color.b * 255.0f);
+
+    updateJsPositions();
+	EM_ASM({
+        editor_ui_instance.setMode(1);
+        editor_ui_instance.toggle();
+	});
 
 	_isActivated = !_isActivated;
 
