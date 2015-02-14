@@ -1,14 +1,25 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Settings
-set(EMSCRIPTEN_PREFIX "/home/developer/emscripten/emscripten/master")
+if(WIN32)
+	set(EMSCRIPTEN_PREFIX "C:/emscripten")
+else()
+	set(EMSCRIPTEN_PREFIX "/home/developer/emscripten/emscripten/master")
+endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
-if("${EMSCRIPTEN}" STREQUAL "1")
-    set(CMAKE_EXE_LINKER_FLAGS "-s USE_GLFW=3 --tracing -g4 -o MuchFireSoHot.js -s EXPORTED_FUNCTIONS=\"['_editor_update_vals','_main']\"")
+# Globals
+if(WIN32)
+	SET(COMMON_CMDS "--cache C:/.emscripten_cache")
 else()
-    #set(CMAKE_EXE_LINKER_FLAGS "-s USE_GLFW=3 -g4 -o MuchFireSoHot.js")
+	SET(COMMON_CMDS "")
+endif()
+
+if("${EMSCRIPTEN}" STREQUAL "1")
+    set(CMAKE_EXE_LINKER_FLAGS "-s USE_GLFW=3 --tracing -g4 -o MuchFireSoHot.js -s EXPORTED_FUNCTIONS=\"['_editor_update_vals','_main']\" ${COMMON_CMDS}")
+else()
+    
 endif()
 
 # Source
@@ -21,7 +32,7 @@ file(GLOB_RECURSE SOURCE_FILES
 project(MuchFireSoHot)
 
 if("${EMSCRIPTEN}" STREQUAL "1")
-    include_directories("${EMSCRIPTEN_PREFIX}/system/inlude" "include" "3rdparty/glm")
+    include_directories("${EMSCRIPTEN_PREFIX}/system/include" "include" "3rdparty/glm")
 else()
     include_directories("include" "3rdparty/glm" "C:/Open Source/glfw-3.0.4/include" "C:/OpenGL/glew-1.10.0/include" "C:/Program Files/Emscripten/emscripten/1.25.0/system/include")
 endif()
@@ -30,6 +41,7 @@ add_executable(MuchFireSoHot ${SOURCE_FILES})
 
 if("${EMSCRIPTEN}" STREQUAL "1")
     add_definitions(-D__EMSCRIPTEN__ --tracing -std=c++11 -Wno-warn-absolute-paths -s USE_GLFW=3 -g4 -s EXPORTED_FUNCTIONS=\"['_editor_update_vals','_main']\")
+    add_definitions(${COMMON_CMDS})
 else()
     add_definitions(-D__EMSCRIPTEN__ -std=c++11 -Wno-warn-absolute-paths)
 endif()
