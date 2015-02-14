@@ -147,6 +147,8 @@ void Editor::onDrag(int x, int y, int state, int mods) {
         _current_layer->Y += difY;
         _current_layer->updateChanges();
         updatePositions();
+
+        if(state == CONTROL_MOUSE_DRAG_END) updateJsPositions();
     }
 }
 
