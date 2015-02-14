@@ -71,11 +71,13 @@ function EditorUI() {
         set_color_int: function(intCol) {
             var hex = intCol.toString(16);
             var rgb = hexToRgb("#"+pad(hex, 6, "0"));
-            this.color[0] = rgb.r;
-            this.color[1] = rgb.g;
-            this.color[2] = rgb.b;
+            this.color[0] = rgb.r / 255;
+            this.color[1] = rgb.g / 255;
+            this.color[2] = rgb.b / 255;
         }
     };
+
+    this.layerwidgets = {};
 
     this.addCamera(this.layersidebar);
     this.addCommon(this.layersidebar);
@@ -114,15 +116,25 @@ EditorUI.prototype.addCamera = function(sidebar) {
 
 EditorUI.prototype.addLayer = function(sidebar) {
     var layer = sidebar.addMenu("Layer");
-    layer.addSlider("x", this.layer.x, (function(x) {editor_ui_instance.layer.x = x; _editor_update_vals(0);}), 0, 5000, 1);
-    layer.addSlider("y", this.layer.y, (function(y) {editor_ui_instance.layer.y = y; _editor_update_vals(0);}), 0, 5000, 1);
-    layer.addSlider("z", this.layer.z, (function(z) {editor_ui_instance.layer.z = z; _editor_update_vals(0);}), 1, 100, 1);
-    layer.addSlider("Width", this.layer.width, (function(x) {editor_ui_instance.layer.width = x; _editor_update_vals(0);}), 0, 5000, 1);
-    layer.addSlider("Height", this.layer.height, (function(y) {editor_ui_instance.layer.height = y; _editor_update_vals(0);}), 0, 5000, 1);
-    layer.addColor("Color", this.layer.color, (function (c) {editor_ui_instance.layer.color = c; _editor_update_vals(1);}));
+    this.layerwidgets.x = layer.addSlider("x", this.layer.x, (function(x) {editor_ui_instance.layer.x = x; _editor_update_vals(0);}), 0, 5000, 1);
+    this.layerwidgets.y = layer.addSlider("y", this.layer.y, (function(y) {editor_ui_instance.layer.y = y; _editor_update_vals(0);}), 0, 5000, 1);
+    this.layerwidgets.z = layer.addSlider("z", this.layer.z, (function(z) {editor_ui_instance.layer.z = z; _editor_update_vals(0);}), 1, 100, 1);
+    this.layerwidgets.width = layer.addSlider("Width", this.layer.width, (function(x) {editor_ui_instance.layer.width = x; _editor_update_vals(0);}), 0, 5000, 1);
+    this.layerwidgets.height = layer.addSlider("Height", this.layer.height, (function(y) {editor_ui_instance.layer.height = y; _editor_update_vals(0);}), 0, 5000, 1);
+    this.layerwidgets.color = layer.addColor("Color", this.layer.color, (function (c) {editor_ui_instance.layer.color = c; _editor_update_vals(1);}));
     layer.addButton("Delete Layer", function() {
         _editor_update_vals(3);
     });
+};
+
+// --------------------------------------------------------------
+
+EditorUI.prototype.refreshLayer = function() {
+    for(var widget in this.layerwidgets) {
+        if(this.layerwidgets.hasOwnProperty(widget)) {
+            this.layerwidgets[widget].setValue(this.layer[widget]);
+        }
+    }
 };
 
 // --------------------------------------------------------------
