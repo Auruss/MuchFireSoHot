@@ -85,7 +85,7 @@ var LiveLog_push = function(builder) {
     var html = "<tr>";
     html += "<td><a href='#'>" + log_type.key + "</a></td>";
     html += "<td>" + builder.msg + "</td>";
-    html += "<td align='right'>" + 1 + "</td>";
+    html += "<td align='right'>" + builder.refs.length + "</td>";
     html += "<td>" + "<button class='btn btn-success btn-sm' onclick='LiveLog_showObjects("+cache_id+");'>Show objects</button>" + "</td>";
     html += "</tr>";
     $("#livelog-table").append(html);
