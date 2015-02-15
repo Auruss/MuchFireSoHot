@@ -6,6 +6,7 @@
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css">
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
@@ -17,7 +18,9 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 
     <!-- Debug GUI -->
+    <link rel="stylesheet" href="debugger.css">
     <link rel="stylesheet" href="yagui.css">
+    <link rel="stylesheet" href="cropper.min.css">
 
     <!-- Live Log-->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
@@ -25,6 +28,7 @@
     <script type="text/javascript" src="livelog-helper.js"></script>
     <script type="text/javascript" src="livelog-types.js"></script>
     <script type="text/javascript" src="livelog.js"></script>
+    <script type="text/javascript" src="cropper.min.js"></script>
 
     <!-- Globals -->
     <script type="text/javascript">
@@ -91,6 +95,9 @@
         </div>
     </div>
 
+    <div id="dialog" style="display: none;">
+    </div>
+
     <div id="content">
         <div id="webgl-output">
             <canvas id="webgl-canvas">
@@ -139,6 +146,8 @@
 
 <script type="text/javascript" src="yagui.js"></script>
 <script type="text/javascript" src="editor-ui.js"></script>
+<script type="text/javascript" src="texture-mapper.js"></script>
+
 <script async type="text/javascript" src="../build/MuchFireSoHot.js"></script>
 
 </html>

@@ -1,0 +1,22 @@
+#dialog img {
+    background-color: white;
+}
+
+#texture-mapper-menu {
+    height: 100px;
+    margin-top: 10px;
+
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+}
+
+#texture-mapper-image {
+    height: calc(100% - 115px);
+}
+
+#texture-mapper-menu .form-horizontal {
+    float: left;
+    display: block;
+    width: 300px;
+}
