@@ -9,5 +9,8 @@ namespace Helper {
 	*/
 	extern unsigned int createProgramFromMemory(const char* vertex, const char* fragment);
 
+
+    extern unsigned int createTextureFromFile(const char* file);
+
 }
 }

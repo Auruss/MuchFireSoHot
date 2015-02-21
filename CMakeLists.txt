@@ -11,13 +11,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
 # Globals
 if(WIN32)
-    SET(COMMON_CMDS "--cache C:/.emscripten_cache")
+    SET(COMMON_CMDS "--cache C:/.emscripten_cache --ports C:/.emscripten_ports")
 else()
     SET(COMMON_CMDS "")
 endif()
 
 if("${EMSCRIPTEN}" STREQUAL "1")
-    set(CMAKE_EXE_LINKER_FLAGS "-s USE_GLFW=3 --tracing -g4 -o MuchFireSoHot.js -s EXPORTED_FUNCTIONS=\"['_editor_update_vals','_main']\" ${COMMON_CMDS}")
+    set(CMAKE_EXE_LINKER_FLAGS "--preload-file ../data/ -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s STB_IMAGE=1 -s USE_GLFW=3 --tracing -g4 -o MuchFireSoHot.js -s EXPORTED_FUNCTIONS=\"['_editor_update_vals','_main']\" ${COMMON_CMDS}")
 else()
     
 endif()
@@ -40,7 +40,7 @@ endif()
 add_executable(MuchFireSoHot ${SOURCE_FILES})
 
 if("${EMSCRIPTEN}" STREQUAL "1")
-    add_definitions(-D__EMSCRIPTEN__ --tracing -std=c++11 -Wno-warn-absolute-paths -s USE_GLFW=3 -g4 -s EXPORTED_FUNCTIONS=\"['_editor_update_vals','_main']\")
+    add_definitions(-D__EMSCRIPTEN__ --tracing -std=c++11 -Wno-warn-absolute-paths -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s STB_IMAGE=1 -s USE_GLFW=3 -g4 -s EXPORTED_FUNCTIONS=\"['_editor_update_vals','_main']\")
     add_definitions(${COMMON_CMDS})
 else()
     add_definitions(-D__EMSCRIPTEN__ -std=c++11 -Wno-warn-absolute-paths)

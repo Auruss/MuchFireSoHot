@@ -2,7 +2,17 @@ function TextureMapper() {
 }
 
 TextureMapper.prototype = {
-    openNew: function() {
+    refreshCropper: function() {
+        var trans_data = {
+            'left': parseInt($("#texture-mapper-x").val()),
+            'top': parseInt($("#texture-mapper-y").val()),
+            'width': parseInt($("#texture-mapper-w").val()),
+            'height': parseInt($("#texture-mapper-h").val())
+        };
+
+        $("#dialog img").cropper('setCropBoxData', trans_data);
+    },
+    openNew: function(okCallback) {
         var html = "<div id='texture-mapper-image'><img src='../data/textures/test_big.jpg' /></div>";
 
         html +=
@@ -21,7 +31,7 @@ TextureMapper.prototype = {
                         "</div>" +
                         "<div class='input-group'>" +
                             "<div class='input-group-addon'>Width</div>" +
-                            "<input type='text' class='form-control' id='texture-mapper-w' />" +
+                          "<input type='text' class='form-control' id='texture-mapper-w' />" +
                             "<div class='input-group-addon'>0.0</div>" +
                         "</div>" +
                         "<div class='input-group'>" +
@@ -43,6 +53,7 @@ TextureMapper.prototype = {
                             "</span>" +
                         "</div>" +
                     "</div>" +
+                    "<button id='ok-texture' class='btn btn-default' type='button'>OK, set!</button>" +
                 "</form>" +
             "</div>";
 
@@ -54,18 +65,29 @@ TextureMapper.prototype = {
         });
 
         $("#dialog img").cropper({
-            done: function(data) {
+            crop: $.proxy(function(data) {
                 $("#texture-mapper-x").val(Math.round(data.x));
                 $("#texture-mapper-y").val(Math.round(data.y));
                 $("#texture-mapper-w").val(Math.round(data.width));
                 $("#texture-mapper-h").val(Math.round(data.height));
-            }
+                this.data_cache = data;
+            }, this)
         });
 
         $("#load-texture").on('click', function() {
-            $("#dialog img").cropper("replace", $("#texture-mapper-texture").val());
+            $("#dialog img").cropper("replace", "../" + $("#texture-mapper-texture").val());
         });
+        // change handlers
+        $("#texture-mapper-x").change(this.refreshCropper);
+        $("#texture-mapper-y").change(this.refreshCropper);
+        $("#texture-mapper-w").change(this.refreshCropper);
+        $("#texture-mapper-h").change(this.refreshCropper);
 
-        $("#texture-mapper-texture").val("../data/textures/test_big.jpg");
+        $("#ok-texture").on("click", $.proxy(function() {
+            okCallback($("#texture-mapper-texture").val(), this.data_cache);
+            $("#dialog").dialog("close");
+        }, this));
+
+        $("#texture-mapper-texture").val("data/textures/test_big.jpg");
     }
 };

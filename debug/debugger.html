@@ -116,11 +116,20 @@
 
 <script>
     var Module = {
-        preRun: (function() {
+        preRun: [(function() {
             $("#console-output").append("<span class='text-log'>Starting...</span>");
-        }),
+        })],
         postRun: [],
         arguments: ["--developer-test", "-rx","1200", "-ry","900"],
+        logReadFiles: true,
+        locateFile: (function(path) {
+            if(path == "MuchFireSoHot.data") {
+                Module.print("Mapped '" + path + "' to '" + "../build/MuchFireSoHot.data" + "'");
+                return "../build/MuchFireSoHot.data";
+            }
+            Module.print("Mapped '" + path + "' to '" + path + "'");
+            return path;
+        }),
         print: (function(text) {
             var builder = new LiveLogBuilder();
             builder.init(6);
@@ -137,10 +146,7 @@
             var canvas = document.getElementById('webgl-canvas');
             canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
             return canvas;
-        })(),
-        locateFile: function(path) {
-            Module.print("Mapped '" + path + "' to '" + path + "'");
-        }
+        })()
     };
     LiveLog_init("#livelog");
 

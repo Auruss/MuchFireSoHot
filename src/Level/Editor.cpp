@@ -15,6 +15,7 @@ Editor* Editor::Instance = NULL;
 #define UPDATE_TYPE_CAM 2
 #define UPDATE_TYPE_REM_LAYER 3
 #define UPDATE_TYPE_NEW_LAYER 4
+#define UPDATE_TYPE_TEXTURE_CHANGED 5
 
 void editor_update_vals(int type) {
 	switch(type) {
@@ -71,6 +72,12 @@ void editor_update_vals(int type) {
             Editor::Instance->getCurrentLevel()->Layers.push_back(layer);
             Editor::Instance->setCurrentLayer(layer);
             Editor::Instance->updateJsPositions();
+        };
+        case UPDATE_TYPE_TEXTURE_CHANGED: {
+            glm::vec2 pos;
+            pos.x = EM_ASM_INT_V({ return editor_ui_instance.layer.texture_pos.x; });
+            pos.y = EM_ASM_INT_V({ return editor_ui_instance.layer.texture_pos.y; });
+            printf("Texture coord changed x: %d y: %d\n", (int)pos.x, (int)pos.y);
         };
     }
     Editor::Instance->getCurrentLayer()->updateChanges();

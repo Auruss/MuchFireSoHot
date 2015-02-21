@@ -5,6 +5,8 @@
 #include <string>
 #include <cstdio>
 
+#include <SDL/SDL_image.h>
+
 bool checkShaderCompileStatus(GLuint shader) {
 	GLint status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
@@ -60,4 +62,22 @@ unsigned int OpenGL::Helper::createProgramFromMemory(const char *vertex, const c
 	if(!checkProgramLinkStatus(program)) return -1;
 
 	return program; 
+}
+
+#define IS_POW_2(x) (((x != 0) && ((x & (~x + 1)) == x)))
+
+unsigned int OpenGL::Helper::createTextureFromFile(const char *file) {
+    auto surface = IMG_Load(file);
+    if(!IS_POW_2(surface->w) || !IS_POW_2(surface->h)) {
+        fprintf(stderr, "'%s' resolutions are not power of 2\n", file);
+        return -1;
+    }
+
+    GLuint texture;
+    glGenTextures(1,&texture);
+    glBindTexture(GL_TEXTURE_2D,texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w,surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE,surface->pixels);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    return texture;
 }
