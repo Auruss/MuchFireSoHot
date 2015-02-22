@@ -23,9 +23,9 @@ Our build system is currently development only (no release builds yet)
 On windows simply run build.bat on any other system build.sh
 
 Checklist before building:
-- Emscripten SDK is installed
-- Check emcc/emc++ results without any parameters given.
-- Make sure cmake, emc++, emcc is installed and in PATH
+- CMake 2.x
+- Emscripten
+    -- we made some changes to emscripten which are not live yet, so you need to use the incoming branch of emscripten or the master of my fork
 
 Running
 -------
