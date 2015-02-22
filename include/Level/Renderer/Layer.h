@@ -23,7 +23,7 @@ namespace Level {
 
 			void full_vertices_update();
             void position_update();
-            void color_update();
+            void texcoord_update();
             void index_update();
 		};
 	}

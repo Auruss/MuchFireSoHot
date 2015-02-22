@@ -3,6 +3,7 @@
 
 #include <OpenGL/Global.h>
 #include <Storage/Geometry.h>
+#include <Level/Model/Base.h>
 
 using namespace Level;
 using namespace Level::Renderer;
@@ -27,8 +28,8 @@ void Layer::update() {
 	}
 
     // color update
-    if(_model->Color.hasChanged()) {
-        color_update();
+    if(_model->TextureCoord.hasChanged()) {
+        texcoord_update();
     }
 }
 
@@ -41,46 +42,44 @@ void Layer::render() {
 void Layer::full_vertices_update() {
     index_update();
     position_update();
-    color_update();
+    texcoord_update();
 }
 
 void Layer::position_update() {
     OpenGL::Global::g_pPositionBuffer->beginUpdate(_buffer.vindex);
 
-    /*glm::vec3* pos = OpenGL::Global::g_pPositionBuffer->next();
-    *pos = glm::vec3((float)_model->X, (float)_model->Y, 1.0f);
-
-    pos = OpenGL::Global::g_pPositionBuffer->next();
-    *pos = glm::vec3((float)_model->X, (float)_model->Y + _model->Height, 1.0f);
-
-    pos = OpenGL::Global::g_pPositionBuffer->next();
-    *pos = glm::vec3((float)_model->X + _model->Width, (float)_model->Y + _model->Height, 1.0f);
-
-    pos = OpenGL::Global::g_pPositionBuffer->next();
-    *pos = glm::vec3((float)_model->X + _model->Width, (float)_model->Y, 1.0f);*/
     Storage::Geometry::buildQuad(OpenGL::Global::g_pPositionBuffer,
             glm::vec2((float)_model->X, (float)_model->Y),
             glm::vec2((float)_model->Width, (float)_model->Height), _model->Z);
 
     OpenGL::Global::g_pPositionBuffer->endUpdate();
 }
-void Layer::color_update() {
-    OpenGL::Global::g_pColorBuffer->beginUpdate(_buffer.vindex);
 
-    glm::vec4* color = OpenGL::Global::g_pColorBuffer->next();
-    *color = _model->Color;
+void Layer::texcoord_update() {
+    auto texture = _model->Base->Renderer->TextureSize;
 
-    color = OpenGL::Global::g_pColorBuffer->next();
-    *color = _model->Color;
+    auto buffer = OpenGL::Global::g_pTexCoordBuffer;
+    buffer->beginUpdate(_buffer.vindex);
 
-    color = OpenGL::Global::g_pColorBuffer->next();
-    *color = _model->Color;
+    auto coord = buffer->next();
+    coord->x = _model->TextureCoord->x / texture.x;
+    coord->y = _model->TextureCoord->y / texture.y;
 
-    color = OpenGL::Global::g_pColorBuffer->next();
-    *color = _model->Color;
+    coord = buffer->next();
+    coord->x = _model->TextureCoord->x / texture.x;
+    coord->y = (_model->TextureCoord->y + _model->TextureCoord->w) / texture.y;
 
-    OpenGL::Global::g_pColorBuffer->endUpdate();
+    coord = buffer->next();
+    coord->x = (_model->TextureCoord->x + _model->TextureCoord->z) / texture.x;
+    coord->y = (_model->TextureCoord->y + _model->TextureCoord->w) / texture.y;
+
+    coord = buffer->next();
+    coord->x = (_model->TextureCoord->x + _model->TextureCoord->z) / texture.x;
+    coord->y = _model->TextureCoord->y / texture.y;
+
+    buffer->endUpdate();
 }
+
 void Layer::index_update() {
     OpenGL::Global::g_pIndexBuffer->beginUpdate(_buffer.index);
     *OpenGL::Global::g_pIndexBuffer->next() = 0 + _buffer.vindex;

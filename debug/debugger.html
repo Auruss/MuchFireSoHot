@@ -119,6 +119,7 @@
         preRun: [(function() {
             $("#console-output").append("<span class='text-log'>Starting...</span>");
         })],
+        TOTAL_MEMORY: 128 * 1024 * 1024,
         postRun: [],
         arguments: ["--developer-test", "-rx","1200", "-ry","900"],
         logReadFiles: true,

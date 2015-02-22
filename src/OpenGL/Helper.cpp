@@ -66,12 +66,15 @@ unsigned int OpenGL::Helper::createProgramFromMemory(const char *vertex, const c
 
 #define IS_POW_2(x) (((x != 0) && ((x & (~x + 1)) == x)))
 
-unsigned int OpenGL::Helper::createTextureFromFile(const char *file) {
+unsigned int OpenGL::Helper::createTextureFromFile(const char *file, glm::vec2& size) {
     auto surface = IMG_Load(file);
     if(!IS_POW_2(surface->w) || !IS_POW_2(surface->h)) {
         fprintf(stderr, "'%s' resolutions are not power of 2\n", file);
         return -1;
     }
+
+	size.x = surface->w;
+	size.y = surface->h;
 
     GLuint texture;
     glGenTextures(1,&texture);

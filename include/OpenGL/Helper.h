@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 namespace OpenGL {
 namespace Helper {
 	/**
@@ -10,7 +12,7 @@ namespace Helper {
 	extern unsigned int createProgramFromMemory(const char* vertex, const char* fragment);
 
 
-    extern unsigned int createTextureFromFile(const char* file);
+    extern unsigned int createTextureFromFile(const char* file, glm::vec2& size);
 
 }
 }
