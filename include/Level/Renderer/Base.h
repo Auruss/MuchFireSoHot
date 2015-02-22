@@ -16,6 +16,9 @@ namespace Level {
 		public:
 			Model::Base* pAssocModel;
 
+			glm::vec2 TextureSize;
+			unsigned int TextureId;
+
 		public:
 			Base(Model::Base* model);
 			~Base();

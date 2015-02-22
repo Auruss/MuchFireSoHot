@@ -13,7 +13,7 @@ OpenGL::RenderSystem* 		   OpenGL::Global::g_pLayerRenderSystem = NULL;
 Storage::GpuBuffer<unsigned int>* OpenGL::Global::g_pIndexBuffer = NULL;
 
 Storage::GpuBuffer<glm::vec3>* OpenGL::Global::g_pPositionBuffer = NULL;
-Storage::GpuBuffer<glm::vec4>* OpenGL::Global::g_pColorBuffer = NULL;
+Storage::GpuBuffer<glm::vec2>* OpenGL::Global::g_pTexCoordBuffer = NULL;
 
 Control::Camera* OpenGL::Global::g_pCamera = NULL;
 
@@ -27,22 +27,24 @@ void OpenGL::Global::init(int width, int height) {
         "uniform mat4 mModifier;"
         ""
 		"attribute vec3 vPosition;"
-		"attribute vec4 vColor;"
+        "attribute vec2 vTexCoord;"
 		""
-		"varying vec4 v_Color;"
+        "varying vec2 v_TexCoord;"
 		""
 		"void main() {"
-		"	v_Color = vColor;"
+        "   v_TexCoord = vTexCoord;"
 		"	gl_Position = mModifier * vec4(vPosition, 1.0);"
 		"}";
 
 	const char* frag_shader = 
 		"precision mediump float;"
 		""
-		"varying vec4 v_Color;"
+        "varying vec2 v_TexCoord;"
+        ""
+        "uniform sampler2D mSampler;"
 		""
 		"void main() {"
-		"	gl_FragColor = v_Color;"
+        "   gl_FragColor = texture2D(mSampler, v_TexCoord);"
 		"}";
 
     // initialize camera
@@ -50,19 +52,17 @@ void OpenGL::Global::init(int width, int height) {
     g_pCamera->X = 0;
     g_pCamera->Y = 0;
 
-
 	// initialize global buffers
 	g_pIndexBuffer    = new Storage::GpuBuffer<unsigned int>(1024, GL_ELEMENT_ARRAY_BUFFER);
 	g_pPositionBuffer = new Storage::GpuBuffer<glm::vec3>(512, GL_ARRAY_BUFFER);
-	g_pColorBuffer 	  = new Storage::GpuBuffer<glm::vec4>(512, GL_ARRAY_BUFFER);
-
+    g_pTexCoordBuffer = new Storage::GpuBuffer<glm::vec2>(512, GL_ARRAY_BUFFER);
 
 	// initialize render system
     unsigned int program = OpenGL::Helper::createProgramFromMemory(vertex_shader, frag_shader);
 	g_pLayerRenderSystem = new OpenGL::RenderSystem(program, g_pIndexBuffer);
 
     g_pLayerRenderSystem->addGpuBuffer("vPosition", g_pPositionBuffer);
-    g_pLayerRenderSystem->addGpuBuffer("vColor", g_pColorBuffer);
+    g_pLayerRenderSystem->addGpuBuffer("vTexCoord", g_pTexCoordBuffer);
 
     // uniforms
     mModifier_Location = glGetUniformLocation(program, "mModifier");
@@ -84,7 +84,7 @@ void OpenGL::Global::update() {
 
 	g_pIndexBuffer->uploadChanges();
 	g_pPositionBuffer->uploadChanges();
-	g_pColorBuffer->uploadChanges();
+    g_pTexCoordBuffer->uploadChanges();
 }
 
 void OpenGL::Global::render() {

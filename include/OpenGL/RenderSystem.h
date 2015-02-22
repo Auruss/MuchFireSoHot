@@ -82,6 +82,9 @@ namespace OpenGL {
         } else if (typeid(T) == typeid(glm::ivec3)) {
             set.type = GL_INT;
             set.count = 3;
+        } else if(typeid(T) == typeid(glm::vec2)) {
+            set.type = GL_FLOAT;
+            set.count = 2;
         } else {
             Common::LiveLog::Builder builder(LOG_CRITICAL_RENDER_ERROR);
             builder.setMessage("[RenderSystem] Unknown gpu buffer type: '%s'", typeid(T).name());

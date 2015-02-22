@@ -15,6 +15,7 @@ Editor* Editor::Instance = NULL;
 #define UPDATE_TYPE_CAM 2
 #define UPDATE_TYPE_REM_LAYER 3
 #define UPDATE_TYPE_NEW_LAYER 4
+#define UPDATE_TYPE_TEXTURE_CHANGED 5
 
 void editor_update_vals(int type) {
 	switch(type) {
@@ -25,12 +26,6 @@ void editor_update_vals(int type) {
             Editor::Instance->getCurrentLayer()->Width = EM_ASM_INT_V({return editor_ui_instance.layer.width; });
             Editor::Instance->getCurrentLayer()->Height = EM_ASM_INT_V({return editor_ui_instance.layer.height; });
             Editor::Instance->updatePositions();
-            break;
-        };
-        case UPDATE_TYPE_COLOR: {
-            int dec = EM_ASM_INT_V({return editor_ui_instance.layer.get_color_int(); });
-            unsigned char* rgb = (unsigned char*)&dec;
-            Editor::Instance->getCurrentLayer()->Color = glm::vec4(rgb[2] / 255.0f, rgb[1] / 255.0f, rgb[0]/255.0f, 1.0f);
             break;
         };
         case UPDATE_TYPE_CAM: {
@@ -66,11 +61,21 @@ void editor_update_vals(int type) {
             layer->Z = 1;
             layer->Width = 100;
             layer->Height = 100;
-            layer->Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            layer->TextureCoord = glm::vec4(0.0f, 0.0f, 10.0f, 10.0f);
             layer->Renderer = new Level::Renderer::Layer(layer);
             Editor::Instance->getCurrentLevel()->Layers.push_back(layer);
             Editor::Instance->setCurrentLayer(layer);
             Editor::Instance->updateJsPositions();
+            break;
+        };
+        case UPDATE_TYPE_TEXTURE_CHANGED: {
+            glm::vec4 pos;
+            pos.x = EM_ASM_INT_V({ return editor_ui_instance.layer.texture_pos.x; });
+            pos.y = EM_ASM_INT_V({ return editor_ui_instance.layer.texture_pos.y; });
+            pos.z = EM_ASM_INT_V({ return editor_ui_instance.layer.texture_pos.width; });
+            pos.w = EM_ASM_INT_V({ return editor_ui_instance.layer.texture_pos.height; });
+            Editor::Instance->getCurrentLayer()->TextureCoord = pos;
+            break;
         };
     }
     Editor::Instance->getCurrentLayer()->updateChanges();
@@ -147,33 +152,28 @@ void Editor::onDrag(int x, int y, int state, int mods) {
         _current_layer->Y += difY;
         _current_layer->updateChanges();
         updatePositions();
+
+        if(state == CONTROL_MOUSE_DRAG_END) updateJsPositions();
     }
 }
 
 // ------------------------------------------------------------------
 
 void Editor::updateJsPositions() {
-    glm::vec4 color  = (glm::vec4)_current_layer->Color;
-    int dec_color = ((int)(color.r * 255.0f) << 16) + ((int)(color.g * 255.0f) << 8) + (int)(color.b * 255.0f);
-
     EM_ASM_INT({
         editor_ui_instance.layer.x = $0;
         editor_ui_instance.layer.y = $1;
         editor_ui_instance.layer.width = $2;
         editor_ui_instance.layer.height = $3;
-        editor_ui_instance.layer.set_color_int($4);
         editor_ui_instance.camera.x = $5;
         editor_ui_instance.camera.y = $6;
         editor_ui_instance.refreshLayer();
     }, (int)_current_layer->X, (int)_current_layer->Y,
-            (int)_current_layer->Width, (int)_current_layer->Height, dec_color,
+            (int)_current_layer->Width, (int)_current_layer->Height, 0,
             (int) OpenGL::Global::g_pCamera->X, (int) OpenGL::Global::g_pCamera->Y);
 }
 
 void Editor::toggle() {
-    glm::vec4 color  = (glm::vec4)_current_layer->Color;
-    int dec_color = ((int)(color.r * 255.0f) << 16) + ((int)(color.g * 255.0f) << 8) + (int)(color.b * 255.0f);
-
     updateJsPositions();
 	EM_ASM({
         editor_ui_instance.setMode(1);
@@ -213,7 +213,7 @@ void Editor::initial_buffer() {
     OpenGL::Global::g_pIndexBuffer->endUpdate();
 
     // Colors
-    OpenGL::Global::g_pColorBuffer->beginUpdate(_buffer.vindex, 0);
+ /*   OpenGL::Global::g_pColorBuffer->beginUpdate(_buffer.vindex, 0);
     for(int i = 0; i < 4; i++) {
         glm::vec4* color = OpenGL::Global::g_pColorBuffer->next();
         *color = glm::vec4(SELECTION_COLOR, SELECTION_ALPHA);
@@ -227,7 +227,8 @@ void Editor::initial_buffer() {
         color = OpenGL::Global::g_pColorBuffer->next();
         *color = glm::vec4(SELECTION_COLOR, SELECTION_ALPHA);
     }
-    OpenGL::Global::g_pColorBuffer->endUpdate();
+    */
+   // OpenGL::Global::g_pColorBuffer->endUpdate();
 }
 
 void Editor::updatePositions() {

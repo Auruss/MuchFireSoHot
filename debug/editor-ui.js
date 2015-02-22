@@ -64,17 +64,7 @@ function EditorUI() {
         z: 1,
         width: 0,
         height: 0,
-        color: [0, 0, 0],
-        get_color_int: function() {
-            return (Math.floor(this.color[0]*255) << 16) + (Math.floor(this.color[1]*255) << 8) + Math.floor(this.color[2]*255);
-        },
-        set_color_int: function(intCol) {
-            var hex = intCol.toString(16);
-            var rgb = hexToRgb("#"+pad(hex, 6, "0"));
-            this.color[0] = rgb.r / 255;
-            this.color[1] = rgb.g / 255;
-            this.color[2] = rgb.b / 255;
-        }
+        texture_pos: 0
     };
 
     this.layerwidgets = {};
@@ -121,7 +111,14 @@ EditorUI.prototype.addLayer = function(sidebar) {
     this.layerwidgets.z = layer.addSlider("z", this.layer.z, (function(z) {editor_ui_instance.layer.z = z; _editor_update_vals(0);}), 1, 100, 1);
     this.layerwidgets.width = layer.addSlider("Width", this.layer.width, (function(x) {editor_ui_instance.layer.width = x; _editor_update_vals(0);}), 0, 5000, 1);
     this.layerwidgets.height = layer.addSlider("Height", this.layer.height, (function(y) {editor_ui_instance.layer.height = y; _editor_update_vals(0);}), 0, 5000, 1);
-    this.layerwidgets.color = layer.addColor("Color", this.layer.color, (function (c) {editor_ui_instance.layer.color = c; _editor_update_vals(1);}));
+    layer.addButton("Set Texture", function() {
+        var mapper = new TextureMapper();
+        mapper.openNew(function(rect) {
+            editor_ui_instance.layer.texture_pos = rect;
+            _editor_update_vals(5);
+        });
+    });
+
     layer.addButton("Delete Layer", function() {
         _editor_update_vals(3);
     });

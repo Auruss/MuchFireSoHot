@@ -13,7 +13,7 @@ namespace Global {
 	extern Storage::GpuBuffer<unsigned int>* g_pIndexBuffer;
 
 	extern Storage::GpuBuffer<glm::vec3>* g_pPositionBuffer;
-	extern Storage::GpuBuffer<glm::vec4>* g_pColorBuffer;
+    extern Storage::GpuBuffer<glm::vec2>* g_pTexCoordBuffer;
 
     extern Control::Camera* g_pCamera;
 
