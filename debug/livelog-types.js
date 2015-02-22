@@ -3,6 +3,13 @@
  Livelog Types only
 
  */
+var LiveLog_GlobalTypes = {
+    "LOG_DEBUG":    {"id": 0, "bg": "#FFFFF", "fg": "#5bc0de"},
+    "LOG_ERROR":    {"id": 1, "bg": "#d9534f", "fg": "#000000"},
+    "LOG_INFO":     {"id": 2, "bg": "#FFFFFF", "fg": "#5cb85c"},
+    "LOG_WARNING":  {"id": 3, "bg": "#FF0000", "fg": "#000000"}
+};
+
 var LiveLog_Types = {
     "LOG_STATS_FPS": {
         'id': 0,

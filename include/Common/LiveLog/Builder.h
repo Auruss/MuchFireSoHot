@@ -12,7 +12,7 @@ namespace Common {
         class Builder {
 
         public:
-            Builder(int log_id);
+            Builder(int log_id, int global_id);
             ~Builder();
 
             void setMessage(const char *format, ...);

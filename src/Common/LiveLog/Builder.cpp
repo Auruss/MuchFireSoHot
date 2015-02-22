@@ -9,14 +9,14 @@
 
 using namespace Common::LiveLog;
 
-Builder::Builder(int log_id) {
+Builder::Builder(int log_id, int global_id) {
     _log_id = log_id;
     _message = NULL;
 
     EM_ASM_INT({
         live_log_instance = new LiveLogBuilder();
-        live_log_instance.init($0);
-    }, log_id);
+        live_log_instance.init($0, $1);
+    }, log_id, global_id);
 
 
 }

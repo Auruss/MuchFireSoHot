@@ -215,7 +215,7 @@ namespace Storage {
 		updates->clear();
 
 		if(Common::GameTime::tickEvery(500, _stats_time, false)) {
-            Common::LiveLog::Builder builder(LOG_STATS_GPU_BUFFER);
+            Common::LiveLog::Builder builder(LOG_STATS_GPU_BUFFER, LOG_TYPE_INFO);
             builder.addRefObj("stats", &__GpuStatsLogRefl, (void*)&_stats);
             builder.push();
             _stats.bytes = 0;

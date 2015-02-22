@@ -133,13 +133,13 @@
         }),
         print: (function(text) {
             var builder = new LiveLogBuilder();
-            builder.init(6);
+            builder.init(6, 0);
             builder.msg = text;
             builder.push();
         }),
         printErr: (function(text) {
             var builder = new LiveLogBuilder();
-            builder.init(7);
+            builder.init(7, 1);
             builder.msg = text;
             builder.push();
         }),

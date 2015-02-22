@@ -124,7 +124,7 @@ void mainloop()
         FpsLog log;
         log.fps = Common::GameTime::FPS;
 
-        Common::LiveLog::Builder builder(LOG_STATS_FPS);
+        Common::LiveLog::Builder builder(LOG_STATS_FPS, LOG_TYPE_INFO);
         builder.setMessage("5 secs elapsed, time for logging");
         builder.addRefObj("fps", &FpsLogRefl, (void*)&log);
         builder.push();
