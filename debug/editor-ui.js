@@ -75,8 +75,7 @@ function EditorUI() {
             this.color[1] = rgb.g / 255;
             this.color[2] = rgb.b / 255;
         },
-        texture_pos: 0,
-        texture_name: ""
+        texture_pos: 0
     };
 
     this.layerwidgets = {};
@@ -126,9 +125,8 @@ EditorUI.prototype.addLayer = function(sidebar) {
     this.layerwidgets.color = layer.addColor("Color", this.layer.color, (function (c) {editor_ui_instance.layer.color = c; _editor_update_vals(1);}));
     layer.addButton("Set Texture", function() {
         var mapper = new TextureMapper();
-        mapper.openNew(function(path, rect) {
+        mapper.openNew(function(rect) {
             editor_ui_instance.layer.texture_pos = rect;
-            editor_ui_instance.layer.texture_name = path;
             _editor_update_vals(5);
         });
     });

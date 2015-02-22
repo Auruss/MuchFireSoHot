@@ -17,7 +17,7 @@ else()
 endif()
 
 if("${EMSCRIPTEN}" STREQUAL "1")
-    set(CMAKE_EXE_LINKER_FLAGS "--preload-file ../data/ -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s STB_IMAGE=1 -s USE_GLFW=3 --tracing -g4 -o MuchFireSoHot.js -s EXPORTED_FUNCTIONS=\"['_editor_update_vals','_main']\" ${COMMON_CMDS}")
+    set(CMAKE_EXE_LINKER_FLAGS "--preload-file ../data/compiled/ -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s STB_IMAGE=1 -s USE_GLFW=3 --tracing -g4 -o MuchFireSoHot.js -s EXPORTED_FUNCTIONS=\"['_editor_update_vals','_main']\" ${COMMON_CMDS}")
 else()
     
 endif()

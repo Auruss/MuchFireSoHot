@@ -74,9 +74,13 @@ void editor_update_vals(int type) {
             Editor::Instance->updateJsPositions();
         };
         case UPDATE_TYPE_TEXTURE_CHANGED: {
-            glm::vec2 pos;
+            glm::vec4 pos;
             pos.x = EM_ASM_INT_V({ return editor_ui_instance.layer.texture_pos.x; });
             pos.y = EM_ASM_INT_V({ return editor_ui_instance.layer.texture_pos.y; });
+            pos.z = EM_ASM_INT_V({ return edtior_ui_instance.layer.texture_pos.width; });
+            pos.w = EM_ASM_INT_V({ return edtior_ui_instance.layer.texture_pos.height; });
+            Editor::Instance->getCurrentLayer()->TextureCoord = pos;
+
             printf("Texture coord changed x: %d y: %d\n", (int)pos.x, (int)pos.y);
         };
     }

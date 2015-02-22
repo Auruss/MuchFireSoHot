@@ -13,7 +13,7 @@ TextureMapper.prototype = {
         $("#dialog img").cropper('setCropBoxData', trans_data);
     },
     openNew: function(okCallback) {
-        var html = "<div id='texture-mapper-image'><img src='../data/textures/test_big.jpg' /></div>";
+        var html = "<div id='texture-mapper-image'><img src='../data/compiled/default-map.png' /></div>";
 
         html +=
             "<div id='texture-mapper-menu'>" +
@@ -43,16 +43,6 @@ TextureMapper.prototype = {
                 "</form>" +
 
                 "<form class='form-horizontal'>" +
-                    "<div class='form-group'>" +
-                        "<div class='input-group'>" +
-                            "<div class='input-group-addon'>Texture</div>" +
-                            "<input type='text' class='form-control' id='texture-mapper-texture' />" +
-                            "<span class='input-group-btn'>" +
-                                "<button id='load-texture' class='btn btn-default' type='button'>Load</button>" +
-                                "Load" +
-                            "</span>" +
-                        "</div>" +
-                    "</div>" +
                     "<button id='ok-texture' class='btn btn-default' type='button'>OK, set!</button>" +
                 "</form>" +
             "</div>";
@@ -74,9 +64,6 @@ TextureMapper.prototype = {
             }, this)
         });
 
-        $("#load-texture").on('click', function() {
-            $("#dialog img").cropper("replace", "../" + $("#texture-mapper-texture").val());
-        });
         // change handlers
         $("#texture-mapper-x").change(this.refreshCropper);
         $("#texture-mapper-y").change(this.refreshCropper);
@@ -84,10 +71,8 @@ TextureMapper.prototype = {
         $("#texture-mapper-h").change(this.refreshCropper);
 
         $("#ok-texture").on("click", $.proxy(function() {
-            okCallback($("#texture-mapper-texture").val(), this.data_cache);
+            okCallback(this.data_cache);
             $("#dialog").dialog("close");
         }, this));
-
-        $("#texture-mapper-texture").val("data/textures/test_big.jpg");
     }
 };
