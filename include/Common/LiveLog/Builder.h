@@ -12,7 +12,7 @@ namespace Common {
         class Builder {
 
         public:
-            Builder(int log_id);
+            Builder(int log_id, int global_id);
             ~Builder();
 
             void setMessage(const char *format, ...);
@@ -23,7 +23,7 @@ namespace Common {
 
         private:
             void jsonify(ReflObject *refl, std::stringstream& str, const char* name, char* data);
-            void jsonify_value(const char* type, char* data, std::stringstream& str);
+            void jsonify_value(const char* type, const char* second_type, char* data, std::stringstream& str);
 
             int _log_id;
             const char *_message;

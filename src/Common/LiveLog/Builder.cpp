@@ -9,14 +9,14 @@
 
 using namespace Common::LiveLog;
 
-Builder::Builder(int log_id) {
+Builder::Builder(int log_id, int global_id) {
     _log_id = log_id;
     _message = NULL;
 
     EM_ASM_INT({
         live_log_instance = new LiveLogBuilder();
-        live_log_instance.init($0);
-    }, log_id);
+        live_log_instance.init($0, $1);
+    }, log_id, global_id);
 
 
 }
@@ -64,12 +64,12 @@ void Builder::jsonify(ReflObject *refl, std::stringstream& str, const char* name
     str << "\"" << name << "\": {";
     for(auto iter = refl->Meta.begin(); iter != refl->Meta.end(); iter++) {
         str << "\"" << iter->name << "\": ";
-        if(iter->mem == LIVELOG_REFL_SCALAR) {
-           jsonify_value(iter->type_name, data + iter->offset, str);
+        if(iter->mem == LIVELOG_REFL_SCALAR || iter->mem == LIVELOG_REFL_ARRAY) {
+           jsonify_value(iter->type_name, iter->second_type_name, data + iter->offset, str);
         }
-        else if (iter->mem == LIVELOG_REFL_ARRAY) {
+        /*else if (iter->mem == LIVELOG_REFL_ARRAY) {
             str << "\"{array}\"";
-        }
+        }*/
 
         if((iter + 1) == refl->Meta.end()) {
             if(refl->Groups.empty()) break;
@@ -88,14 +88,37 @@ void Builder::jsonify(ReflObject *refl, std::stringstream& str, const char* name
     str << "}";
 }
 
-void Builder::jsonify_value(const char* type, char* data, std::stringstream& str) {
+void Builder::jsonify_value(const char* type, const char* second_type, char* data, std::stringstream& str) {
     if(std::strcmp(typeid(int).name(), type) == 0) {
         int* pval = (int*)(data);
         str << *pval;
     } else if(std::strcmp(typeid(float).name(), type) == 0) {
         float* pval = (float*)(data);
         str << *pval;
+    } else if (std::strcmp(typeid(std::string).name(), type) == 0) {
+        std::string* pval = (std::string*)data;
+        str << "\"" << *pval << "\"";
     } else {
-        str << "\"{unknown type: " << type << "}\"";
+        if(second_type != NULL) {
+            if(std::strcmp(typeid(std::string).name(), second_type) == 0) {
+                std::vector<std::string>* vec = (std::vector<std::string>*) data;
+                int count = vec->size();
+                str << "{ \"count\": " << count << ", ";
+                int i = 0;
+                for(auto iter = vec->begin(); iter != vec->end(); iter++) {
+                    str << "\"" << i++ << "\": ";
+                    jsonify_value(second_type, NULL, (char*)&*iter, str);
+
+                    if((iter + 1) != vec->end()) {
+                        str << ",";
+                    }
+                }
+                str << "}";
+            }
+        }
+        else {
+            str << "\"{unknown type: " << type << "}\"";
+        }
     }
 }
+

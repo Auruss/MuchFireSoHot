@@ -68,7 +68,7 @@ void OpenGL::Global::init(int width, int height) {
     mModifier_Location = glGetUniformLocation(program, "mModifier");
     mProjection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.1f, 100.0f);
 
-    Common::LiveLog::Builder builder(LOG_PROGRAM_MVP);
+    Common::LiveLog::Builder builder(LOG_PROGRAM_MVP, LOG_TYPE_INFO);
     builder.addRefObj("mProjection", &__mat4_Reflection, (float*)&mProjection);
     builder.push();
 }

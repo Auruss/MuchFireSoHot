@@ -45,7 +45,7 @@ RenderSystem::Combined RenderSystem::requestCombined(int vertices, int indices) 
             continue;
         }
         if(vindex != iter->owner->request(vertices)) {
-            Common::LiveLog::Builder builder(LOG_CRITICAL_RENDER_ERROR);
+            Common::LiveLog::Builder builder(LOG_CRITICAL_RENDER_ERROR, LOG_TYPE_ERROR);
             builder.setMessage("[RenderSystem] Buffers are out of sync");
             builder.push();
             return RenderSystem::Combined();
@@ -93,7 +93,7 @@ void RenderSystem::render() {
     vector->clear();
 
 	if(Common::GameTime::tickEvery(500, _stats_timer, false)) {
-        Common::LiveLog::Builder builder(LOG_STATS_DRAW_CALLS);
+        Common::LiveLog::Builder builder(LOG_STATS_DRAW_CALLS, LOG_TYPE_INFO);
         builder.addRefObj("stats", &__LogStatsDrawCallsRefl, (void*)&_stats);
         builder.push();
         _stats.faces = 0;

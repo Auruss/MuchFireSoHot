@@ -122,7 +122,6 @@
         TOTAL_MEMORY: 128 * 1024 * 1024,
         postRun: [],
         arguments: ["--developer-test", "-rx","1200", "-ry","900"],
-        logReadFiles: true,
         locateFile: (function(path) {
             if(path == "MuchFireSoHot.data") {
                 Module.print("Mapped '" + path + "' to '" + "../build/MuchFireSoHot.data" + "'");
@@ -133,13 +132,13 @@
         }),
         print: (function(text) {
             var builder = new LiveLogBuilder();
-            builder.init(6);
+            builder.init(6, 0);
             builder.msg = text;
             builder.push();
         }),
         printErr: (function(text) {
             var builder = new LiveLogBuilder();
-            builder.init(7);
+            builder.init(7, 1);
             builder.msg = text;
             builder.push();
         }),

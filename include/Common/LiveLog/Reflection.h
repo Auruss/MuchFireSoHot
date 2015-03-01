@@ -4,6 +4,8 @@
 #include <typeinfo>
 #include <vector>
 #include <stddef.h>
+#include <type_traits>
+#include <map>
 
 #define LIVELOG_REFL_SCALAR 0
 #define LIVELOG_REFL_ARRAY 1
@@ -18,6 +20,7 @@ namespace Common {
                 int offset;
                 int size;
                 const char* type_name;
+                const char* second_type_name;
                 const char* name;
                 int mem;
             };
@@ -44,6 +47,9 @@ namespace Common {
             template <class T>
             void addMember(const char* name, int offset, int as = LIVELOG_REFL_SCALAR);
 
+            template <class T, class I>
+            void addVectorMember(const char* name, int offset);
+
             /**
             * Adds an other reflection
             * Results in nested structs!
@@ -58,6 +64,25 @@ namespace Common {
             */
             std::size_t sizeOf();
 
+        public:
+            template <class T>
+            static ReflObject* getForSingleValue(const char* name) {
+                return _getForSingleValue<T>(name, is_vector<T>{});
+            }
+
+        private:
+            template<typename T> struct is_vector : public std::false_type {};
+
+            template<typename T, typename A>
+            struct is_vector<std::vector<T, A>> : public std::true_type {public: typedef T member_type;};
+
+            template <class T>
+            static ReflObject* _getForSingleValue(const char* name, std::true_type);
+
+            template <class T>
+            static ReflObject* _getForSingleValue(const char* name, std::false_type);
+
+            static std::map<std::size_t, ReflObject*> _singleValueCache;
 
         public:
             const char* Name;
@@ -79,9 +104,48 @@ namespace Common {
             meta.name = name;
             meta.mem = as;
             meta.type_name = typeid(T).name();
+            meta.second_type_name = NULL;
             meta.size = sizeof(T);
             meta.offset = offset;
             Meta.push_back(meta);
+        }
+
+        template <class T, class I>
+        void ReflObject::addVectorMember(const char* name, int offset) {
+            MemberMeta meta;
+            meta.name = name;
+            meta.mem = LIVELOG_REFL_ARRAY;
+            meta.type_name = typeid(T).name();
+            meta.second_type_name = typeid(I).name();
+            meta.size = sizeof(T);
+            meta.offset = offset;
+            Meta.push_back(meta);
+        }
+
+        template <class T>
+        ReflObject* ReflObject::_getForSingleValue(const char* name, std::true_type) {
+            auto iter = _singleValueCache.find(typeid(T).hash_code());
+            if(iter != _singleValueCache.end()) {
+                return iter->second;
+            }
+            ReflObject* obj = new ReflObject();
+            obj->init<T>();
+            obj->template addVectorMember<T, typename T::value_type>(name, 0);
+            _singleValueCache.insert(std::make_pair(typeid(T).hash_code(), obj));
+            return obj;
+        };
+
+        template <class T>
+        ReflObject* ReflObject::_getForSingleValue(const char* name, std::false_type) {
+            auto iter = _singleValueCache.find(typeid(T).hash_code());
+            if(iter != _singleValueCache.end()) {
+                return iter->second;
+            }
+            ReflObject* obj = new ReflObject();
+            obj->init<T>();
+            obj->addMember<T>(name, 0);
+            _singleValueCache.insert(std::make_pair(typeid(T).hash_code(), obj));
+            return obj;
         }
     }
 }

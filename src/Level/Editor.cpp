@@ -49,7 +49,7 @@ void editor_update_vals(int type) {
             }
             if(deleted) break;
 
-            Common::LiveLog::Builder builder(LOG_EDITOR);
+            Common::LiveLog::Builder builder(LOG_EDITOR, LOG_TYPE_WARNING);
             builder.setMessage("Tried to delete a layer that does not exist.");
             builder.push();
             break;

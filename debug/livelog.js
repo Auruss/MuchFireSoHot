@@ -62,6 +62,8 @@ var LiveLog_disableStackRuns = function(id, fn) {
 
 var LiveLog_push = function(builder) {
     var log_type = LiveLog_getLogType(builder.log_id);
+    var global_type = LiveLog_getGlobalType(builder.global_type);
+
     if(log_type.option_defaults.STACK == true) {
         var d = $("#livelog-stack-" + log_type.id);
         d.html(parseInt(d.html()) + 1);
@@ -82,11 +84,13 @@ var LiveLog_push = function(builder) {
     LiveLog_object_cache[LiveLog_object_cache.length] = builder.parsed_refs;
     var cache_id = LiveLog_object_cache.length - 1;
 
-    var html = "<tr>";
+    var html = "<tr style='background-color: "+global_type.bg+"; color: "+global_type.fg+";'>";
     html += "<td><a href='#'>" + log_type.key + "</a></td>";
     html += "<td>" + builder.msg + "</td>";
     html += "<td align='right'>" + builder.refs.length + "</td>";
-    html += "<td>" + "<button class='btn btn-success btn-sm' onclick='LiveLog_showObjects("+cache_id+");'>Show objects</button>" + "</td>";
+    if(builder.refs.length > 0) {
+        html += "<td>" + "<button class='btn btn-success btn-sm' onclick='LiveLog_showObjects(" + cache_id + ");'>Show objects</button>" + "</td>";
+    } else { html += "<td></td>"}
     html += "</tr>";
     $("#livelog-table").append(html);
 };
@@ -128,14 +132,26 @@ var LiveLog_getLogType = function(id) {
     }
 };
 
+var LiveLog_getGlobalType = function(id) {
+    for(var key in LiveLog_GlobalTypes) {
+        if(LiveLog_GlobalTypes.hasOwnProperty(key)) {
+            if (LiveLog_GlobalTypes[key].id == id) {
+                LiveLog_GlobalTypes[key].key = key;
+                return LiveLog_GlobalTypes[key];
+            }
+        }
+    }
+};
+
 // Builder ------------------
 var live_log_instance;
 
 function LiveLogBuilder() {
 }
 
-LiveLogBuilder.prototype.init = function(id) {
+LiveLogBuilder.prototype.init = function(id, global_type) {
     this.log_id = id;
+    this.global_type = global_type;
     this.refs = [];
     this.parsed_refs = [];
     this.options = [];
