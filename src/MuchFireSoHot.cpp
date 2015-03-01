@@ -197,10 +197,10 @@ void init_gl(int width, int height) {
     boost::split(extensions, str, boost::is_any_of(" "));
     Common::LiveLog::Builder builder(LOG_GL_EXTENSIONS, LOG_TYPE_INFO);
     builder.setMessage("Extension list logged (count=%d)", extensions.size());
-    Common::LiveLog::ReflObject refl;
-    refl.init<std::vector<std::string>>();
-    refl.addVectorMember<std::vector<std::string>, std::string>("extension_list", 0);
-    builder.addRefObj("extensions", &refl, (void*)&extensions);
+    builder.addRefObj("extensions",
+            Common::LiveLog::ReflObject::getForSingleValue<std::vector<std::string>>("extension_list"),
+            (void*)&extensions);
+
     builder.push();
 
 
