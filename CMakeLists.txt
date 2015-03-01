@@ -32,9 +32,9 @@ file(GLOB_RECURSE SOURCE_FILES
 project(MuchFireSoHot)
 
 if("${EMSCRIPTEN}" STREQUAL "1")
-    include_directories("${EMSCRIPTEN_PREFIX}/system/include" "include" "3rdparty/glm")
+    include_directories("${EMSCRIPTEN_PREFIX}/system/include" "include" "3rdparty/glm" "3rdparty/boost")
 else()
-    include_directories("include" "3rdparty/glm" "C:/Open Source/glfw-3.0.4/include" "C:/OpenGL/glew-1.10.0/include" "C:/Program Files/Emscripten/emscripten/1.25.0/system/include")
+    include_directories("include" "3rdparty/glm" "3rdparty/boost" "C:/Open Source/glfw-3.0.4/include" "C:/OpenGL/glew-1.10.0/include" "C:/Program Files/Emscripten/emscripten/1.25.0/system/include")
 endif()
 
 add_executable(MuchFireSoHot ${SOURCE_FILES})

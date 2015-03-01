@@ -1,10 +1,13 @@
 #include <cstdio>
+
 #include <cstring>
 #include <string>
 #include <cstdlib>
 #include <stdlib.h>
 
 #include <emscripten/emscripten.h>
+
+#include <boost/algorithm/string.hpp>
 
 #include <Common/GameTime.h>
 
@@ -188,15 +191,17 @@ void init_gl(int width, int height) {
     glGetIntegerv(GL_NUM_EXTENSIONS, &n);
     printf("\tExt.:     %d\n", n);
 
-
-#ifdef WIN32
-    for (GLint i = 0; i < n; i++)
-    {
-        printf("\tExt %d: %s\n", i, glGetStringi(GL_EXTENSIONS, i));
-    }
-#else
-    printf("Extensions: %s\n", glGetString(GL_EXTENSIONS));
-#endif
+    //printf("Extensions: %s\n", glGetString(GL_EXTENSIONS));
+    std::string str((const char*) glGetString(GL_EXTENSIONS));
+    std::vector<std::string> extensions;
+    boost::split(extensions, str, boost::is_any_of(" "));
+    Common::LiveLog::Builder builder(LOG_GL_EXTENSIONS, LOG_TYPE_INFO);
+    builder.setMessage("Extension list logged (count=%d)", extensions.size());
+    Common::LiveLog::ReflObject refl;
+    refl.init<std::vector<std::string>>();
+    refl.addVectorMember<std::vector<std::string>, std::string>("extension_list", 0);
+    builder.addRefObj("extensions", &refl, (void*)&extensions);
+    builder.push();
 
 
     glClearColor(0.4f, 0.1f, 0.3f, 1.0f);

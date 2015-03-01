@@ -218,5 +218,14 @@ var LiveLog_Types = {
             "STACK": false,
             "BREAKPOINT": false
         }
+    },
+    "LOG_GL_EXTENSIONS": {
+        "id": 8,
+        "description": "Logs all available WebGL extensions available on current computer.",
+        "option_defaults": {
+            "DISPLAY": true,
+            "STACK": false,
+            "BREAKPOINT": false
+        }
     }
 };

@@ -18,6 +18,7 @@ namespace Common {
                 int offset;
                 int size;
                 const char* type_name;
+                const char* second_type_name;
                 const char* name;
                 int mem;
             };
@@ -43,6 +44,9 @@ namespace Common {
             */
             template <class T>
             void addMember(const char* name, int offset, int as = LIVELOG_REFL_SCALAR);
+
+            template <class T, class I>
+            void addVectorMember(const char* name, int offset);
 
             /**
             * Adds an other reflection
@@ -79,6 +83,19 @@ namespace Common {
             meta.name = name;
             meta.mem = as;
             meta.type_name = typeid(T).name();
+            meta.second_type_name = NULL;
+            meta.size = sizeof(T);
+            meta.offset = offset;
+            Meta.push_back(meta);
+        }
+
+        template <class T, class I>
+        void ReflObject::addVectorMember(const char* name, int offset) {
+            MemberMeta meta;
+            meta.name = name;
+            meta.mem = LIVELOG_REFL_ARRAY;
+            meta.type_name = typeid(T).name();
+            meta.second_type_name = typeid(I).name();
             meta.size = sizeof(T);
             meta.offset = offset;
             Meta.push_back(meta);

@@ -122,7 +122,6 @@
         TOTAL_MEMORY: 128 * 1024 * 1024,
         postRun: [],
         arguments: ["--developer-test", "-rx","1200", "-ry","900"],
-        logReadFiles: true,
         locateFile: (function(path) {
             if(path == "MuchFireSoHot.data") {
                 Module.print("Mapped '" + path + "' to '" + "../build/MuchFireSoHot.data" + "'");
