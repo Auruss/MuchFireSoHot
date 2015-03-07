@@ -86,7 +86,7 @@ namespace OpenGL {
             set.type = GL_FLOAT;
             set.count = 2;
         } else {
-            Common::LiveLog::Builder builder(LOG_CRITICAL_RENDER_ERROR);
+            Common::LiveLog::Builder builder(LOG_CRITICAL_RENDER_ERROR, LOG_TYPE_ERROR);
             builder.setMessage("[RenderSystem] Unknown gpu buffer type: '%s'", typeid(T).name());
             builder.push();
             return;

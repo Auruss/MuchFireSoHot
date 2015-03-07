@@ -2,6 +2,8 @@
 
 using namespace Common::LiveLog;
 
+std::map<std::size_t, ReflObject*> ReflObject::_singleValueCache;
+
 void ReflObject::addOtherReflection(const char* name, int offset, ReflObject* refl) {
     GroupMeta meta;
     meta.name = name;
