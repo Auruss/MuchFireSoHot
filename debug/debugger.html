@@ -18,6 +18,7 @@
     <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>-->
     <script type="text/javascript" src="jquery-ui-1.9.2.custom.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script src="elasticsearch.jquery.min.js"></script>
 
     <!-- Debug GUI -->
     <link rel="stylesheet" href="debugger.css">
@@ -26,8 +27,7 @@
     <link rel="stylesheet" href="jquery-ui-1.10.0.custom.css">
 
     <!-- Live Log-->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.4.1/canvas.min.js"></script>
-    <script type="text/javascript" src="livelog-helper.js"></script>
+    <script type="text/javascript" src="moment.min.js"></script>
     <script type="text/javascript" src="livelog-types.js"></script>
     <script type="text/javascript" src="livelog.js"></script>
     <script type="text/javascript" src="cropper.min.js"></script>
@@ -51,52 +51,14 @@
             border-color: black;
             border-width: 3px;
 
-            margin-left: 50px;
+            margin-left: auto;
+            margin-right: auto;
             margin-bottom: 35px;
         }
-
-        #livelog-table tbody tr td {
-            vertical-align: middle;
-        }
-
-        #live-log-graph {
-            width: 500px;
-            height: 300px;
-
-            overflow: auto;
-        }
-
-        .json-key {
-            color: brown;
-        }
-        .json-value {
-            color: navy;
-        }
-        .json-string {
-            color: olive;
-        }
-
     </style>
 </head>
 
 <body>
-    <div id="graphModal" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Graph</h4>
-                </div>
-                <div class="modal-body">
-                    <div id="live-log-graph"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="dialog" style="display: none;">
     </div>
 
@@ -109,9 +71,7 @@
         <div id="sidebar"></div>
     </div>
 
-    <div id="livelog">
-
-    </div>
+    <div id="kibana-instance">Kibana Instance: </div>
 </body>
 
 <script>
@@ -124,11 +84,16 @@
         arguments: ["--developer-test", "-rx","1200", "-ry","900"],
         locateFile: (function(path) {
             if(path == "MuchFireSoHot.data") {
-                Module.print("Mapped '" + path + "' to '" + "../build/MuchFireSoHot.data" + "'");
                 return "../build/MuchFireSoHot.data";
             }
             Module.print("Mapped '" + path + "' to '" + path + "'");
             return path;
+        }),
+        mainCalled: (function() {
+            LiveLog_init("#livelog", function() {
+                $("#kibana-instance").append(LiveLog_es_index);
+                Module._real_main();
+            });
         }),
         print: (function(text) {
             var builder = new LiveLogBuilder();
@@ -137,6 +102,11 @@
             builder.push();
         }),
         printErr: (function(text) {
+            if(!LiveLog_es_inited) {
+                console.log('pre-kibana error:' + text);
+                return; // skip emscripten related errors for kibana
+            }
+
             var builder = new LiveLogBuilder();
             builder.init(7, 1);
             builder.msg = text;
@@ -148,11 +118,7 @@
             return canvas;
         })()
     };
-    LiveLog_init("#livelog");
 
-    $("#graphModal").draggable({
-        handle: ".modal-header"
-    });
 </script>
 
 <script type="text/javascript" src="yagui.js"></script>

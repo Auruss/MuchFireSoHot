@@ -221,8 +221,19 @@ void init_gl(int width, int height) {
     Control::Mouse::setOnDrag(on_drag);
 }
 
-int main(int argc, char* argv [])
-{
+int argc_saved;
+char** argv_saved;
+
+int main(int argc, char* argv []) {
+    argc_saved = argc;
+    argv_saved = argv;
+
+    EM_ASM({
+        Module.mainCalled();
+    });
+}
+
+extern "C" void real_main() {
     Common::LiveLog::init_common_reflections();
 
     bool test_flag = false;
@@ -230,18 +241,18 @@ int main(int argc, char* argv [])
     int resolution_x = 800;
     int resolution_y = 600;
 
-    for(int i = 0; i < argc; i++) {
-        if(std::strcmp(argv[i], "--developer-test") == 0) {
+    for(int i = 0; i < argc_saved; i++) {
+        if(std::strcmp(argv_saved[i], "--developer-test") == 0) {
             test_flag = true;
         }
-        if (std::strcmp(argv[i], "--fullscreen") == 0) {
+        if (std::strcmp(argv_saved[i], "--fullscreen") == 0) {
             fullscreen_flag = true;
         }
-        else if(std::strcmp(argv[i], "-rx") == 0) {
-            resolution_x = std::stoi(argv[++i]);
+        else if(std::strcmp(argv_saved[i], "-rx") == 0) {
+            resolution_x = std::stoi(argv_saved[++i]);
         }
-        else if (std::strcmp(argv[i], "-ry") == 0) {
-            resolution_y = std::stoi(argv[++i]);
+        else if (std::strcmp(argv_saved[i], "-ry") == 0) {
+            resolution_y = std::stoi(argv_saved[++i]);
         }
     }
 
@@ -253,7 +264,7 @@ int main(int argc, char* argv [])
     FpsLogRefl.addMember<int>("fps", offsetof(FpsLog, fps));
     if(FpsLogRefl.sizeOf() != sizeof(FpsLog)) {
         fprintf(stderr, "Reflection error!\n");
-        return 1;
+        return;
     }
 
     if (test_flag) {
@@ -262,5 +273,5 @@ int main(int argc, char* argv [])
     }
 
     emscripten_set_main_loop(mainloop, 0, true);
-    return 0;
+    return;
 }

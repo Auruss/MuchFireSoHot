@@ -103,17 +103,16 @@ void Builder::jsonify_value(const char* type, const char* second_type, char* dat
             if(std::strcmp(typeid(std::string).name(), second_type) == 0) {
                 std::vector<std::string>* vec = (std::vector<std::string>*) data;
                 int count = vec->size();
-                str << "{ \"count\": " << count << ", ";
+                str << "{ \"count\": " << count << ", \"array\": [";
                 int i = 0;
                 for(auto iter = vec->begin(); iter != vec->end(); iter++) {
-                    str << "\"" << i++ << "\": ";
                     jsonify_value(second_type, NULL, (char*)&*iter, str);
 
                     if((iter + 1) != vec->end()) {
                         str << ",";
                     }
                 }
-                str << "}";
+                str << "]}";
             }
         }
         else {
