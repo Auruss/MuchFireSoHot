@@ -3,19 +3,24 @@ Much Fire - So Hot
 
 AGILE Workflow
 --------
-https://waffle.io/Auruss/MuchFireSoHot is our AGILE issue board which is connected with github issues.
 
+###Deprecated!
+#This repository will no longer use the Waffle.io service and will migrate to another service soon.
+#
+#https://waffle.io/Auruss/MuchFireSoHot is our AGILE issue board which is connected with github issues.
+#
 ### Using our Agile board at waffle.io
-It is self explaining, you grab any 'ready' issue you want but try to do things from the top to bottom since they are sorted.
-
+#It is self explaining, you grab any 'ready' issue you want but try to do things from the top to bottom since they #are sorted.
+#
 ## Agile
-Our workflow is currently Kanban orientated, but we might switch to Scrum if the game reaches a further state.
-
+#Our workflow is currently Kanban orientated, but we might switch to Scrum if the game reaches a further state.
+#
 ## Backlog
-People with access to backlog:
-- Rene Eichhorn
-
-Anybody else should not grab these issues however you are free create new tickets (this is encouraged)
+#People with access to backlog:
+#- Rene Eichhorn
+#
+#Anybody else should not grab these issues however you are free create new tickets (this is encouraged)
+###
 
 Building
 --------
