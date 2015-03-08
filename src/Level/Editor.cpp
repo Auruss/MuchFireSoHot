@@ -177,13 +177,14 @@ void Editor::updateJsPositions() {
     EM_ASM_INT({
         editor_ui_instance.layer.x = $0;
         editor_ui_instance.layer.y = $1;
-        editor_ui_instance.layer.width = $2;
-        editor_ui_instance.layer.height = $3;
-        editor_ui_instance.camera.x = $5;
-        editor_ui_instance.camera.y = $6;
+        editor_ui_instance.layer.z = $2;
+        editor_ui_instance.layer.width = $3;
+        editor_ui_instance.layer.height = $4;
+        editor_ui_instance.camera.x = $6;
+        editor_ui_instance.camera.y = $7;
         editor_ui_instance.refreshLayer();
         editor_ui_instance.refreshCamera();
-    }, (int)_current_layer->X, (int)_current_layer->Y,
+    }, (int)_current_layer->X, (int)_current_layer->Y, (int)_current_layer->Z,
             (int)_current_layer->Width, (int)_current_layer->Height, 0,
             (int) OpenGL::Global::g_pCamera->X, (int) OpenGL::Global::g_pCamera->Y);
 }
