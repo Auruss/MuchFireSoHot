@@ -166,9 +166,9 @@ void Editor::onDrag(int x, int y, int state, int mods) {
         _current_layer->Y += difY;
         _current_layer->updateChanges();
         updatePositions();
-
-        if(state == CONTROL_MOUSE_DRAG_END) updateJsPositions();
     }
+
+    if(state == CONTROL_MOUSE_DRAG_END) updateJsPositions();
 }
 
 // ------------------------------------------------------------------
@@ -182,6 +182,7 @@ void Editor::updateJsPositions() {
         editor_ui_instance.camera.x = $5;
         editor_ui_instance.camera.y = $6;
         editor_ui_instance.refreshLayer();
+        editor_ui_instance.refreshCamera();
     }, (int)_current_layer->X, (int)_current_layer->Y,
             (int)_current_layer->Width, (int)_current_layer->Height, 0,
             (int) OpenGL::Global::g_pCamera->X, (int) OpenGL::Global::g_pCamera->Y);
