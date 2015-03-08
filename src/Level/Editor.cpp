@@ -124,7 +124,7 @@ void Editor::onClick() {
     if(!_isActivated) return;
 
     int mx = Control::Mouse::X + OpenGL::Global::g_pCamera->X;
-    int my = Control::Mouse::Y - OpenGL::Global::g_pCamera->Y;
+    int my = Control::Mouse::Y + OpenGL::Global::g_pCamera->Y;
 
     for(auto iter = _current_level->Layers.begin(); iter != _current_level->Layers.end(); iter++) {
         auto ptr = (*iter);
@@ -150,7 +150,7 @@ void Editor::onDrag(int x, int y, int state, int mods) {
 
     if(mods & GLFW_MOD_CONTROL) {
         OpenGL::Global::g_pCamera->X -= difX;
-        OpenGL::Global::g_pCamera->Y += difY;
+        OpenGL::Global::g_pCamera->Y -= difY;
 
         if(OpenGL::Global::g_pCamera->X > INT_MAX) {
             OpenGL::Global::g_pCamera->X = 0;

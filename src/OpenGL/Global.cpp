@@ -54,7 +54,7 @@ void OpenGL::Global::init(int width, int height) {
 
 void OpenGL::Global::update() {
     if(g_pCamera->X.hasChanged() || g_pCamera->Y.hasChanged()) {
-        glm::mat4 view = glm::translate(glm::vec3(-(float)g_pCamera->X, (float)g_pCamera->Y, -100.0f));
+        glm::mat4 view = glm::translate(glm::vec3(-(float)g_pCamera->X, -(float)g_pCamera->Y, -100.0f));
 
         glUseProgram(g_pLayerRenderSystem->getProgram());
         mModifier = mProjection * view;
