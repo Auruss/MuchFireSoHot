@@ -68,6 +68,7 @@ function EditorUI() {
     };
 
     this.layerwidgets = {};
+    this.camerawidgets = {};
 
     this.addCamera(this.layersidebar);
     this.addCommon(this.layersidebar);
@@ -100,8 +101,8 @@ EditorUI.prototype.addCommon = function(sidebar) {
 
 EditorUI.prototype.addCamera = function(sidebar) {
     var cam = sidebar.addMenu("Camera");
-    cam.addSlider("x", this.camera.x, (function(x) {editor_ui_instance.camera.x = x; _editor_update_vals(2);}), 0, 5000, 1);
-    cam.addSlider("y", this.camera.y, (function(y) {editor_ui_instance.camera.y = y; _editor_update_vals(2);}), 0, 5000, 1);
+    this.camerawidgets.x = cam.addSlider("x", this.camera.x, (function(x) {editor_ui_instance.camera.x = x; _editor_update_vals(2);}), 0, 5000, 1);
+    this.camerawidgets.y = cam.addSlider("y", this.camera.y, (function(y) {editor_ui_instance.camera.y = y; _editor_update_vals(2);}), 0, 5000, 1);
 };
 
 EditorUI.prototype.addLayer = function(sidebar) {
@@ -127,9 +128,17 @@ EditorUI.prototype.addLayer = function(sidebar) {
 // --------------------------------------------------------------
 
 EditorUI.prototype.refreshLayer = function() {
-    for(var widget in this.layerwidgets) {
-        if(this.layerwidgets.hasOwnProperty(widget)) {
-            this.layerwidgets[widget].setValue(this.layer[widget]);
+    this.refreshWidgets(this.layerwidgets, this.layer);
+};
+
+EditorUI.prototype.refreshCamera = function() {
+    this.refreshWidgets(this.camerawidgets, this.camera);
+};
+
+EditorUI.prototype.refreshWidgets = function(widgets, object) {
+    for(var widget in widgets) {
+        if(widgets.hasOwnProperty(widget)) {
+            widgets[widget].setValue(object[widget]);
         }
     }
 };

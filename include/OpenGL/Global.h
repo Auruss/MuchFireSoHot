@@ -17,6 +17,8 @@ namespace Global {
 
     extern Control::Camera* g_pCamera;
 
+	extern glm::mat4* getModifierMatrix();
+
 	extern void init(int width, int height);
 	extern void update();
 	extern void render();
