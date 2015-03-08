@@ -5,6 +5,7 @@
 #include <Common/LiveLog/CommonReflections.h>
 #include <Storage/Geometry.h>
 #include <Control/Mouse.h>
+#include <OpenGL/Helper.h>
 
 using namespace Level;
 
@@ -83,12 +84,25 @@ void editor_update_vals(int type) {
 
 // ------------------------------------------------------------------
 
-Editor::Editor() {
-    _buffer = OpenGL::Global::g_pLayerRenderSystem->requestCombined(4*4, 6*4);
+Editor::Editor()
+    : _vertex_buffer(32, GL_ARRAY_BUFFER),
+      _color_buffer(32, GL_ARRAY_BUFFER),
+      _index_buffer(48, GL_ELEMENT_ARRAY_BUFFER)
+{
+    _color_program = OpenGL::Helper::createProgramFromFiles("colored");
+    _render_system = new OpenGL::RenderSystem(_color_program, &_index_buffer);
+    _render_system->addGpuBuffer("vPosition", &_vertex_buffer);
+    _render_system->addGpuBuffer("vColor", &_color_buffer);
+    _buffer = _render_system->requestCombined(8*4, 6*8);
+
     initial_buffer();
 
 	_isActivated = false;
 	Instance = this;
+}
+
+Editor::~Editor() {
+    delete _render_system;
 }
 
 // ------------------------------------------------------------------
@@ -187,7 +201,18 @@ void Editor::toggle() {
 
 void Editor::render() {
     if(_isActivated && _current_layer != NULL) {
-        OpenGL::Global::g_pLayerRenderSystem->enqueueRenderJob(_buffer.index, 24);
+        // QUICK-FIX
+        unsigned int loc = glGetUniformLocation(_color_program, "mModifier");
+        glUseProgram(_color_program);
+        glUniformMatrix4fv(loc, 1, GL_FALSE, (float*)OpenGL::Global::getModifierMatrix());
+
+        OpenGL::Global::getModifierMatrix();
+        _index_buffer.uploadChanges();
+        _vertex_buffer.uploadChanges();
+        _color_buffer.uploadChanges();
+        
+        _render_system->enqueueRenderJob(_buffer.index, 8*6);
+        _render_system->render();
     }
 }
 
@@ -199,70 +224,91 @@ void Editor::render() {
 
 void Editor::initial_buffer() {
     // Indices
-    OpenGL::Global::g_pIndexBuffer->beginUpdate(_buffer.index, 0);
+    _index_buffer.beginUpdate(_buffer.index, 0);
     int offset = 0;
-    for(int i = 0; i < 4; i++) {
-        *OpenGL::Global::g_pIndexBuffer->next() = 0 + _buffer.vindex + offset;
-        *OpenGL::Global::g_pIndexBuffer->next() = 1 + _buffer.vindex + offset;
-        *OpenGL::Global::g_pIndexBuffer->next() = 2 + _buffer.vindex + offset;
-        *OpenGL::Global::g_pIndexBuffer->next() = 2 + _buffer.vindex + offset;
-        *OpenGL::Global::g_pIndexBuffer->next() = 3 + _buffer.vindex + offset;
-        *OpenGL::Global::g_pIndexBuffer->next() = 0 + _buffer.vindex + offset;
+    for(int i = 0; i < 8; i++) {
+        *_index_buffer.next() = 0 + _buffer.vindex + offset;
+        *_index_buffer.next() = 1 + _buffer.vindex + offset;
+        *_index_buffer.next() = 2 + _buffer.vindex + offset;
+        *_index_buffer.next() = 2 + _buffer.vindex + offset;
+        *_index_buffer.next() = 3 + _buffer.vindex + offset;
+        *_index_buffer.next() = 0 + _buffer.vindex + offset;
         offset += 4;
     }
-    OpenGL::Global::g_pIndexBuffer->endUpdate();
+    _index_buffer.endUpdate();
 
     // Colors
- /*   OpenGL::Global::g_pColorBuffer->beginUpdate(_buffer.vindex, 0);
-    for(int i = 0; i < 4; i++) {
-        glm::vec4* color = OpenGL::Global::g_pColorBuffer->next();
+    _color_buffer.beginUpdate(_buffer.vindex, 0);
+    for(int i = 0; i < 8; i++) {
+        glm::vec4* color = _color_buffer.next();
         *color = glm::vec4(SELECTION_COLOR, SELECTION_ALPHA);
 
-        color = OpenGL::Global::g_pColorBuffer->next();
+        color = _color_buffer.next();
         *color = glm::vec4(SELECTION_COLOR, SELECTION_ALPHA);
 
-        color = OpenGL::Global::g_pColorBuffer->next();
+        color = _color_buffer.next();
         *color = glm::vec4(SELECTION_COLOR, SELECTION_ALPHA);
 
-        color = OpenGL::Global::g_pColorBuffer->next();
+        color = _color_buffer.next();
         *color = glm::vec4(SELECTION_COLOR, SELECTION_ALPHA);
     }
-    */
-   // OpenGL::Global::g_pColorBuffer->endUpdate();
+    _color_buffer.endUpdate();
 }
 
 void Editor::updatePositions() {
     if(_current_layer == NULL) return;
 
-    OpenGL::Global::g_pPositionBuffer->beginUpdate(_buffer.vindex, 0);
+    _vertex_buffer.beginUpdate(_buffer.vindex, 0);
 
+    // Edge points
     // top left
-    Storage::Geometry::buildQuad(OpenGL::Global::g_pPositionBuffer,
+    Storage::Geometry::buildQuad(&_vertex_buffer,
             glm::vec2((int)_current_layer->X - 5.0f, (int)_current_layer->Y - 5.0f),
             glm::vec2(10.0f, 10.0f), 0.2f);
 
     // top right
-    Storage::Geometry::buildQuad(OpenGL::Global::g_pPositionBuffer,
+    Storage::Geometry::buildQuad(&_vertex_buffer,
             glm::vec2(
                     (int)_current_layer->X + _current_layer->Width - 5.0f,
                     (int)_current_layer->Y - 5.0f),
             glm::vec2(10.0f, 10.0f), 0.2f);
 
     // bottom left
-    Storage::Geometry::buildQuad(OpenGL::Global::g_pPositionBuffer,
+    Storage::Geometry::buildQuad(&_vertex_buffer,
             glm::vec2(
                     (int)_current_layer->X - 5.0f,
                     (int)_current_layer->Y + _current_layer->Height - 5.0f),
             glm::vec2(10.0f, 10.0f), 0.2f);
 
     // bottom right
-    Storage::Geometry::buildQuad(OpenGL::Global::g_pPositionBuffer,
+    Storage::Geometry::buildQuad(&_vertex_buffer,
             glm::vec2(
                     (int)_current_layer->X + _current_layer->Width - 5.0f,
                     (int)_current_layer->Y + _current_layer->Height - 5.0f),
             glm::vec2(10.0f, 10.0f), 0.2f);
 
-    OpenGL::Global::g_pPositionBuffer->endUpdate();
+    // Selection
+    // Left
+    Storage::Geometry::buildQuad(&_vertex_buffer,
+            glm::vec2((int)_current_layer->X - 2.5f, (int)_current_layer->Y),
+            glm::vec2(5.0f, _current_layer->Height + 2.5f), 0.2f);
+
+    // Right
+    Storage::Geometry::buildQuad(&_vertex_buffer,
+            glm::vec2((int)_current_layer->X + _current_layer->Width - 2.5f, (int)_current_layer->Y),
+            glm::vec2(5.0f, _current_layer->Height + 2.5f), 0.2f);
+
+    // Top
+    Storage::Geometry::buildQuad(&_vertex_buffer,
+            glm::vec2((int)_current_layer->X, (int)_current_layer->Y - 2.5f),
+            glm::vec2(_current_layer->Width + 2.5f, 5.0f), 0.2f);
+
+    // Bottom
+    Storage::Geometry::buildQuad(&_vertex_buffer,
+            glm::vec2((int)_current_layer->X, _current_layer->Y + _current_layer->Height - 2.5f),
+            glm::vec2(_current_layer->Width + 2.5f, 5.0f), 0.2f);
+
+    _vertex_buffer.endUpdate();
 }
 
 // ------------------------------------------------------------------

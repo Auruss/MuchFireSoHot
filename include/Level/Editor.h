@@ -2,6 +2,7 @@
 
 #include <Level/Model/Base.h>
 #include <OpenGL/RenderSystem.h>
+#include <OpenGL/Global.h>
 
 extern "C" void editor_update_vals(int type);
 
@@ -9,6 +10,7 @@ namespace Level {
 	class Editor {
 	public:
 		Editor();
+        ~Editor();
 
 		void toggle();
 
@@ -37,5 +39,11 @@ namespace Level {
         Model::Layer* _current_layer;
 
         OpenGL::RenderSystem::Combined _buffer;
+
+        OpenGL::RenderSystem* _render_system;
+        Storage::GpuBuffer<glm::vec3> _vertex_buffer;
+        Storage::GpuBuffer<glm::vec4> _color_buffer;
+        Storage::GpuBuffer<unsigned int> _index_buffer;
+        unsigned int _color_program;
 	};
 }

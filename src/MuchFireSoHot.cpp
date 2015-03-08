@@ -178,20 +178,12 @@ void init_gl(int width, int height) {
         exit(1);
     }
 
-    printf("OpenGL Stats:\n");
-
     // Printing OpenGL information
     printf("\tVersion:  %s\n", glGetString(GL_VERSION));
     printf("\tGLSL:     %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
     printf("\tVendor:   %s\n", glGetString(GL_VENDOR));
     printf("\tRenderer: %s\n", glGetString(GL_RENDERER));
 
-    // Print extensions
-    GLint n = 0;
-    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-    printf("\tExt.:     %d\n", n);
-
-    //printf("Extensions: %s\n", glGetString(GL_EXTENSIONS));
     std::string str((const char*) glGetString(GL_EXTENSIONS));
     std::vector<std::string> extensions;
     boost::split(extensions, str, boost::is_any_of(" "));
