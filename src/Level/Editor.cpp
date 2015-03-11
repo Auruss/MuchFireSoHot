@@ -7,6 +7,9 @@
 #include <Control/Mouse.h>
 #include <OpenGL/Helper.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+
 using namespace Level;
 
 Editor* Editor::Instance = NULL;
@@ -130,9 +133,18 @@ void Editor::onClick() {
     for(auto iter = _current_level->Layers.begin(); iter != _current_level->Layers.end(); iter++) {
         auto ptr = (*iter);
 
-        if(ptr->X <= mx && mx <= (ptr->X + ptr->Width)) {
-            if(ptr->Y <= my && my <= (ptr->Y + ptr->Height)) {
+        // rotate cursor
+        glm::mat4 rot_matrix = glm::rotate(glm::radians(-(float)ptr->Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::vec2 rot_origin = glm::vec2(ptr->X + ptr->Width / 2.0f, ptr->Y + ptr->Height / 2.0f);
+        glm::vec2 pos = glm::vec2((float)mx, (float)my) - rot_origin;
+        glm::vec4 trans = rot_matrix * glm::vec4(pos, 0.0f, 1.0f);
+        trans = trans / trans.w;
+        pos = trans.xy();
+        pos += rot_origin;
 
+        // check collision
+        if(ptr->X <= pos.x && pos.x <= (ptr->X + ptr->Width)) {
+            if(ptr->Y <= pos.y && pos.y <= (ptr->Y + ptr->Height)) {
                 _current_layer = ptr;
                 updatePositions();
                 updateJsPositions();
