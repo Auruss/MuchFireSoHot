@@ -22,7 +22,7 @@ void Layer::update() {
 
 	// position update
 	if(_model->X.hasChanged() || _model->Y.hasChanged() || _model->Z.hasChanged()
-            || _model->Width.hasChanged() || _model->Height.hasChanged())
+            || _model->Width.hasChanged() || _model->Height.hasChanged() || _model->Rotation.hasChanged())
     {
         position_update();
 	}
@@ -48,9 +48,13 @@ void Layer::full_vertices_update() {
 void Layer::position_update() {
     OpenGL::Global::g_pPositionBuffer->beginUpdate(_buffer.vindex);
 
-    Storage::Geometry::buildQuad(OpenGL::Global::g_pPositionBuffer,
-            glm::vec2((float)_model->X, (float)_model->Y),
-            glm::vec2((float)_model->Width, (float)_model->Height), _model->Z);
+    Storage::GeometryBuilder geom(OpenGL::Global::g_pPositionBuffer);
+    geom.setPosition(glm::vec2((float)_model->X, (float)_model->Y));
+    geom.setSize(glm::vec2((float)_model->Width, (float)_model->Height));
+    geom.setRotation((float)_model->Rotation);
+    geom.setZOrder((float)_model->Z);
+    geom.setOriginToCenter();
+    geom.buildQuad();
 
     OpenGL::Global::g_pPositionBuffer->endUpdate();
 }

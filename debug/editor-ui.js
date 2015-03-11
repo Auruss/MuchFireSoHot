@@ -64,6 +64,7 @@ function EditorUI() {
         z: 1,
         width: 0,
         height: 0,
+        rotation: 0,
         texture_pos: 0
     };
 
@@ -112,6 +113,8 @@ EditorUI.prototype.addLayer = function(sidebar) {
     this.layerwidgets.z = layer.addSlider("z", this.layer.z, (function(z) {editor_ui_instance.layer.z = z; _editor_update_vals(0);}), 1, 100, 1);
     this.layerwidgets.width = layer.addSlider("Width", this.layer.width, (function(x) {editor_ui_instance.layer.width = x; _editor_update_vals(0);}), 0, 5000, 1);
     this.layerwidgets.height = layer.addSlider("Height", this.layer.height, (function(y) {editor_ui_instance.layer.height = y; _editor_update_vals(0);}), 0, 5000, 1);
+    this.layerwidgets.rotation = layer.addSlider("Rotation", this.layer.rotation, function(rot) {editor_ui_instance.layer.rotation = rot; _editor_update_vals(0);}, 0, 360, 1);
+
     layer.addButton("Set Texture", function() {
         var mapper = new TextureMapper();
         mapper.openNew(function(rect) {
