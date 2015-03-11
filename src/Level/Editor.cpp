@@ -7,6 +7,9 @@
 #include <Control/Mouse.h>
 #include <OpenGL/Helper.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+
 using namespace Level;
 
 Editor* Editor::Instance = NULL;
@@ -26,6 +29,7 @@ void editor_update_vals(int type) {
             Editor::Instance->getCurrentLayer()->Z = EM_ASM_INT_V({return editor_ui_instance.layer.z; });
             Editor::Instance->getCurrentLayer()->Width = EM_ASM_INT_V({return editor_ui_instance.layer.width; });
             Editor::Instance->getCurrentLayer()->Height = EM_ASM_INT_V({return editor_ui_instance.layer.height; });
+            Editor::Instance->getCurrentLayer()->Rotation = EM_ASM_INT_V({return editor_ui_instance.layer.rotation; });
             Editor::Instance->updatePositions();
             break;
         };
@@ -129,9 +133,18 @@ void Editor::onClick() {
     for(auto iter = _current_level->Layers.begin(); iter != _current_level->Layers.end(); iter++) {
         auto ptr = (*iter);
 
-        if(ptr->X <= mx && mx <= (ptr->X + ptr->Width)) {
-            if(ptr->Y <= my && my <= (ptr->Y + ptr->Height)) {
+        // rotate cursor
+        glm::mat4 rot_matrix = glm::rotate(glm::radians(-(float)ptr->Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::vec2 rot_origin = glm::vec2(ptr->X + ptr->Width / 2.0f, ptr->Y + ptr->Height / 2.0f);
+        glm::vec2 pos = glm::vec2((float)mx, (float)my) - rot_origin;
+        glm::vec4 trans = rot_matrix * glm::vec4(pos, 0.0f, 1.0f);
+        trans = trans / trans.w;
+        pos = trans.xy();
+        pos += rot_origin;
 
+        // check collision
+        if(ptr->X <= pos.x && pos.x <= (ptr->X + ptr->Width)) {
+            if(ptr->Y <= pos.y && pos.y <= (ptr->Y + ptr->Height)) {
                 _current_layer = ptr;
                 updatePositions();
                 updateJsPositions();
@@ -180,12 +193,13 @@ void Editor::updateJsPositions() {
         editor_ui_instance.layer.z = $2;
         editor_ui_instance.layer.width = $3;
         editor_ui_instance.layer.height = $4;
+        editor_ui_instance.layer.rotation = $5;
         editor_ui_instance.camera.x = $6;
         editor_ui_instance.camera.y = $7;
         editor_ui_instance.refreshLayer();
         editor_ui_instance.refreshCamera();
     }, (int)_current_layer->X, (int)_current_layer->Y, (int)_current_layer->Z,
-            (int)_current_layer->Width, (int)_current_layer->Height, 0,
+            (int)_current_layer->Width, (int)_current_layer->Height, (int)_current_layer->Rotation,
             (int) OpenGL::Global::g_pCamera->X, (int) OpenGL::Global::g_pCamera->Y);
 }
 
@@ -262,53 +276,56 @@ void Editor::updatePositions() {
 
     _vertex_buffer.beginUpdate(_buffer.vindex, 0);
 
+    Storage::GeometryBuilder geom(&_vertex_buffer);
+
     // Edge points
+    geom.setSize(glm::vec2(10.0f, 10.0f));
+    geom.setZOrder(0.2f);
+    geom.setRotation(_current_layer->Rotation);
+    geom.setRotationOrigin(glm::vec2(
+            _current_layer->X + _current_layer->Width / 2.0f,
+            _current_layer->Y + _current_layer->Height / 2.0f));
+
     // top left
-    Storage::Geometry::buildQuad(&_vertex_buffer,
-            glm::vec2((int)_current_layer->X - 5.0f, (int)_current_layer->Y - 5.0f),
-            glm::vec2(10.0f, 10.0f), 0.2f);
+    geom.setPosition(glm::vec2((int)_current_layer->X - 5.0f, (int)_current_layer->Y - 5.0f));
+    geom.buildQuad();
 
     // top right
-    Storage::Geometry::buildQuad(&_vertex_buffer,
-            glm::vec2(
-                    (int)_current_layer->X + _current_layer->Width - 5.0f,
-                    (int)_current_layer->Y - 5.0f),
-            glm::vec2(10.0f, 10.0f), 0.2f);
+    geom.setPosition(glm::vec2(
+            (int)_current_layer->X + _current_layer->Width - 5.0f,
+            (int)_current_layer->Y - 5.0f));
+    geom.buildQuad();
 
     // bottom left
-    Storage::Geometry::buildQuad(&_vertex_buffer,
-            glm::vec2(
-                    (int)_current_layer->X - 5.0f,
-                    (int)_current_layer->Y + _current_layer->Height - 5.0f),
-            glm::vec2(10.0f, 10.0f), 0.2f);
+    geom.setPosition(glm::vec2(
+            (int)_current_layer->X - 5.0f,
+            (int)_current_layer->Y + _current_layer->Height - 5.0f));
+    geom.buildQuad();
 
     // bottom right
-    Storage::Geometry::buildQuad(&_vertex_buffer,
-            glm::vec2(
-                    (int)_current_layer->X + _current_layer->Width - 5.0f,
-                    (int)_current_layer->Y + _current_layer->Height - 5.0f),
-            glm::vec2(10.0f, 10.0f), 0.2f);
+    geom.setPosition(glm::vec2(
+            (int)_current_layer->X + _current_layer->Width - 5.0f,
+            (int)_current_layer->Y + _current_layer->Height - 5.0f));
+    geom.buildQuad();
 
     // Selection
     // Left
-    Storage::Geometry::buildQuad(&_vertex_buffer,
-            glm::vec2((int)_current_layer->X - 2.5f, (int)_current_layer->Y),
-            glm::vec2(5.0f, _current_layer->Height + 2.5f), 0.2f);
+    geom.setPosition(glm::vec2((int)_current_layer->X - 2.5f, (int)_current_layer->Y));
+    geom.setSize(glm::vec2(5.0f, _current_layer->Height + 2.5f));
+    geom.buildQuad();
 
     // Right
-    Storage::Geometry::buildQuad(&_vertex_buffer,
-            glm::vec2((int)_current_layer->X + _current_layer->Width - 2.5f, (int)_current_layer->Y),
-            glm::vec2(5.0f, _current_layer->Height + 2.5f), 0.2f);
+    geom.setPosition(glm::vec2((int)_current_layer->X + _current_layer->Width - 2.5f, (int)_current_layer->Y));
+    geom.buildQuad();
 
     // Top
-    Storage::Geometry::buildQuad(&_vertex_buffer,
-            glm::vec2((int)_current_layer->X, (int)_current_layer->Y - 2.5f),
-            glm::vec2(_current_layer->Width + 2.5f, 5.0f), 0.2f);
+    geom.setPosition(glm::vec2((int)_current_layer->X, (int)_current_layer->Y - 2.5f));
+    geom.setSize(glm::vec2(_current_layer->Width + 2.5f, 5.0f));
+    geom.buildQuad();
 
     // Bottom
-    Storage::Geometry::buildQuad(&_vertex_buffer,
-            glm::vec2((int)_current_layer->X, _current_layer->Y + _current_layer->Height - 2.5f),
-            glm::vec2(_current_layer->Width + 2.5f, 5.0f), 0.2f);
+    geom.setPosition(glm::vec2((int)_current_layer->X, _current_layer->Y + _current_layer->Height - 2.5f));
+    geom.buildQuad();
 
     _vertex_buffer.endUpdate();
 }

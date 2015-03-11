@@ -15,6 +15,7 @@ namespace Level {
 			Common::ModelAttribute<int> X, Y, Z;
 			Common::ModelAttribute<int> Width, Height;
             Common::ModelAttribute<glm::vec4> TextureCoord;
+            Common::ModelAttribute<float> Rotation;
 
 			Renderer::Layer* Renderer;
             Model::Base* Base;
