@@ -46,6 +46,15 @@ void Layer::full_vertices_update() {
 }
 
 void Layer::position_update() {
+    // Origin update
+    OpenGL::Global::g_pOriginBuffer->beginUpdate(_buffer.vindex);
+    glm::vec2 origin = glm::vec2(_model->X + _model->Width / 2.0f, _model->Y + _model->Height / 2.0f);
+    for(int i = 0; i < 4; i++) {
+        *OpenGL::Global::g_pOriginBuffer->next() = origin;
+    }
+    OpenGL::Global::g_pOriginBuffer->endUpdate();
+
+    // Position update
     OpenGL::Global::g_pPositionBuffer->beginUpdate(_buffer.vindex);
 
     Storage::GeometryBuilder geom(OpenGL::Global::g_pPositionBuffer);

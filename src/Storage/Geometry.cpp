@@ -5,6 +5,7 @@ using namespace Storage;
 
 GeometryBuilder::GeometryBuilder(Storage::GpuBuffer<glm::vec3> *buffer) {
     _buffer = buffer;
+    _offset = glm::vec2(0.0f, 0.0f);
 }
 
 // ======================================================================================
@@ -15,6 +16,10 @@ void GeometryBuilder::setPosition(glm::vec2 pos) {
 
 void GeometryBuilder::setSize(glm::vec2 size) {
     _size = size;
+}
+
+void GeometryBuilder::setOffset(glm::vec2 offset) {
+    _offset = offset;
 }
 
 void GeometryBuilder::setZOrder(float z) {
@@ -43,8 +48,8 @@ void GeometryBuilder::buildQuad() {
         if(_rotation == 0) return;
 
         // translate to origin
-        vec.x -= _origin.x;
-        vec.y -= _origin.y;
+        vec.x -= _origin.x + _offset.x;
+        vec.y -= _origin.y + _offset.y;
 
         // rotate
         auto temp = _rot_matrix * glm::vec4(vec, 1.0f);
@@ -52,23 +57,23 @@ void GeometryBuilder::buildQuad() {
         vec.z = z;
 
         // translate back
-        vec.x += _origin.x;
-        vec.y += _origin.y;
+        vec.x += _origin.x + _offset.x;
+        vec.y += _origin.y + _offset.y;
     };
 
     glm::vec3* vec = _buffer->next();
-    *vec = glm::vec3(_position.x, _position.y, z);
+    *vec = glm::vec3(_position.x + _offset.x, _position.y + _offset.y, z);
     rotate(*vec);
 
     vec = _buffer->next();
-    *vec = glm::vec3(_position.x, _position.y + _size.y, z);
+    *vec = glm::vec3(_position.x + _offset.x, _position.y + _size.y + _offset.y, z);
     rotate(*vec);
 
     vec = _buffer->next();
-    *vec = glm::vec3(_position.x + _size.x, _position.y + _size.y, z);
+    *vec = glm::vec3(_position.x + _size.x + _offset.x, _position.y + _size.y + _offset.y, z);
     rotate(*vec);
 
     vec = _buffer->next();
-    *vec = glm::vec3(_position.x + _size.x, _position.y, z);
+    *vec = glm::vec3(_position.x + _size.x + _offset.x, _position.y + _offset.y, z);
     rotate(*vec);
 }

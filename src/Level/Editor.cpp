@@ -132,10 +132,17 @@ void Editor::onClick() {
 
     for(auto iter = _current_level->Layers.begin(); iter != _current_level->Layers.end(); iter++) {
         auto ptr = (*iter);
+        // parallax correction
+        float cam_offset = OpenGL::Global::g_pCamera->X + OpenGL::Global::g_Width / 2.0f;
+        float origin = (float)ptr->X + ptr->Width / 2.0f;
+        float distance = cam_offset - origin;
+        float x_offset = (distance/100.0f) * ((float)ptr->Z-1.0f);
+        float x = ptr->X + x_offset;
+        float y = ptr->Y;
 
         // rotate cursor
         glm::mat4 rot_matrix = glm::rotate(glm::radians(-(float)ptr->Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-        glm::vec2 rot_origin = glm::vec2(ptr->X + ptr->Width / 2.0f, ptr->Y + ptr->Height / 2.0f);
+        glm::vec2 rot_origin = glm::vec2(x + ptr->Width / 2.0f, y + ptr->Height / 2.0f);
         glm::vec2 pos = glm::vec2((float)mx, (float)my) - rot_origin;
         glm::vec4 trans = rot_matrix * glm::vec4(pos, 0.0f, 1.0f);
         trans = trans / trans.w;
@@ -143,10 +150,9 @@ void Editor::onClick() {
         pos += rot_origin;
 
         // check collision
-        if(ptr->X <= pos.x && pos.x <= (ptr->X + ptr->Width)) {
-            if(ptr->Y <= pos.y && pos.y <= (ptr->Y + ptr->Height)) {
+        if(x <= pos.x && pos.x <= (x + ptr->Width)) {
+            if(y <= pos.y && pos.y <= (y + ptr->Height)) {
                 _current_layer = ptr;
-                updatePositions();
                 updateJsPositions();
                 return;
             }
@@ -218,6 +224,7 @@ void Editor::toggle() {
 void Editor::render() {
     if(_isActivated && _current_layer != NULL) {
         // QUICK-FIX
+        updatePositions(); // NOTE: when camera changes we have to update anyway
         unsigned int loc = glGetUniformLocation(_color_program, "mModifier");
         glUseProgram(_color_program);
         glUniformMatrix4fv(loc, 1, GL_FALSE, (float*)OpenGL::Global::getModifierMatrix());
@@ -277,6 +284,12 @@ void Editor::updatePositions() {
     _vertex_buffer.beginUpdate(_buffer.vindex, 0);
 
     Storage::GeometryBuilder geom(&_vertex_buffer);
+
+    // Calculate offset due to parallax scrolling
+    float cam_offset = OpenGL::Global::g_pCamera->X + OpenGL::Global::g_Width / 2.0f;
+    float origin = (float)_current_layer->X + _current_layer->Width / 2.0f;
+    float distance = cam_offset - origin;
+    geom.setOffset(glm::vec2((distance/100.0f) * ((float)_current_layer->Z-1.0f), 0.0f));
 
     // Edge points
     geom.setSize(glm::vec2(10.0f, 10.0f));

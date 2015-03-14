@@ -14,8 +14,12 @@ namespace Global {
 
 	extern Storage::GpuBuffer<glm::vec3>* g_pPositionBuffer;
     extern Storage::GpuBuffer<glm::vec2>* g_pTexCoordBuffer;
+	extern Storage::GpuBuffer<glm::vec2>* g_pOriginBuffer;
 
     extern Control::Camera* g_pCamera;
+
+	extern int g_Width;
+	extern int g_Height;
 
 	extern glm::mat4* getModifierMatrix();
 

@@ -14,6 +14,7 @@ namespace Storage {
         void setZOrder(float z);
         void setPosition(glm::vec2 pos);
         void setSize(glm::vec2 size);
+        void setOffset(glm::vec2 offset);
 
         void setOriginToCenter();
 
@@ -23,6 +24,7 @@ namespace Storage {
         Storage::GpuBuffer<glm::vec3>* _buffer;
 
         glm::vec2 _position;
+        glm::vec2 _offset;
         glm::vec2 _size;
         float _rotation;
         glm::vec2 _origin;

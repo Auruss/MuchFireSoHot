@@ -4,6 +4,11 @@ var LiveLog_es_index;
 var LiveLog_es_inited = false;
 
 var LiveLog_init = function(table, onInitDone) {
+    if(LiveLog_Enable == false) {
+        onInitDone();
+        return;
+    }
+
     LiveLog_es_client = new $.es.Client({
         hosts: 'localhost:9200'
     });
@@ -36,6 +41,8 @@ var LiveLog_init = function(table, onInitDone) {
 };
 
 var LiveLog_push = function(builder) {
+    if(!LiveLog_Enable) return;
+
     var fun = function() {
         var log_type = LiveLog_getLogType(builder.log_id);
         var global_type = LiveLog_getGlobalType(builder.global_type);
