@@ -60,8 +60,8 @@ unsigned int OpenGL::Helper::createProgramFromMemory(const char *vertex, const c
     glAttachShader(program, vs);
     glAttachShader(program, fs);
     glLinkProgram(program);
-    glDetachShader(program, vs);
-    glDetachShader(program, fs);
+    //glDetachShader(program, vs);
+    //glDetachShader(program, fs);
     if(!checkProgramLinkStatus(program)) return -1;
 
     return program;
