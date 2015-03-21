@@ -8,6 +8,7 @@
 #include <Level/Model/Chunk.h>
 #include <Level/Renderer/Base.h>
 #include <Level/Model/Layer.h>
+#include <Light/Model.h>
 
 namespace Level {
 	namespace Model {
@@ -23,6 +24,7 @@ namespace Level {
 
 			//std::vector<Model::Chunk*> Chunks; // Chunks (column major allocated)
 			std::vector<Model::Layer*> Layers;
+			std::vector<Light::Model*> Lights;
 
 			Level::Renderer::Base* Renderer;
 

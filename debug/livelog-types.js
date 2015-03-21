@@ -3,7 +3,7 @@
  Livelog Types only
 
  */
-var LiveLog_Enable = true;
+var LiveLog_Enable = false;
 
 var LiveLog_GlobalTypes = {
     "LOG_DEBUG":    {"id": 0},

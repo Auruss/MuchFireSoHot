@@ -22,10 +22,13 @@ namespace Level {
         void render();
 
 		void setCurrentLevel(Model::Base* lvl);
+        void setCurrentLight(Light::Model* light);
         void setCurrentLayer(Model::Layer* layer);
 
 		Model::Base* getCurrentLevel() { return _current_level; }
         Model::Layer* getCurrentLayer() { return _current_layer; }
+
+        bool isEditing();
 
 
 		static Editor* Instance;
@@ -35,8 +38,10 @@ namespace Level {
 
         bool _isActivated;
 
+        int _current_type;
 		Model::Base* _current_level;
         Model::Layer* _current_layer;
+        Light::Model* _current_light;
 
         OpenGL::RenderSystem::Combined _buffer;
 

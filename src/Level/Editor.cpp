@@ -6,6 +6,7 @@
 #include <Storage/Geometry.h>
 #include <Control/Mouse.h>
 #include <OpenGL/Helper.h>
+#include <Light/Renderer.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
@@ -20,6 +21,8 @@ Editor* Editor::Instance = NULL;
 #define UPDATE_TYPE_REM_LAYER 3
 #define UPDATE_TYPE_NEW_LAYER 4
 #define UPDATE_TYPE_TEXTURE_CHANGED 5
+#define UPDATE_TYPE_NEW_LIGHT 6
+#define UPDATE_TYPE_LIGHT_POS 7
 
 void editor_update_vals(int type) {
 	switch(type) {
@@ -67,7 +70,9 @@ void editor_update_vals(int type) {
             layer->Width = 100;
             layer->Height = 100;
             layer->TextureCoord = glm::vec4(0.0f, 0.0f, 10.0f, 10.0f);
+            layer->Base = Editor::Instance->getCurrentLevel();
             layer->Renderer = new Level::Renderer::Layer(layer);
+            layer->updateChanges();
             Editor::Instance->getCurrentLevel()->Layers.push_back(layer);
             Editor::Instance->setCurrentLayer(layer);
             Editor::Instance->updateJsPositions();
@@ -81,6 +86,19 @@ void editor_update_vals(int type) {
             pos.w = EM_ASM_INT_V({ return editor_ui_instance.layer.texture_pos.height; });
             Editor::Instance->getCurrentLayer()->TextureCoord = pos;
             break;
+        };
+        case UPDATE_TYPE_NEW_LIGHT: {
+            auto light = new Light::Model();
+            light->X = 100;
+            light->Y = 100;
+            light->Z = 1;
+            light->Strength = 0.1f;
+            light->Radius = 50;
+            light->Base = Editor::Instance->getCurrentLevel();
+            light->Renderer = new Light::Renderer(light);
+            light->updateChanges();
+            Editor::Instance->getCurrentLevel()->Lights.push_back(light);
+            Editor::Instance->setCurrentLight(light);
         };
     }
     Editor::Instance->getCurrentLayer()->updateChanges();
@@ -110,6 +128,9 @@ Editor::~Editor() {
 }
 
 // ------------------------------------------------------------------
+bool Editor::isEditing() {
+    return _isActivated;
+}
 
 void Editor::setCurrentLevel(Model::Base *lvl) {
     _current_level = lvl;
@@ -118,7 +139,18 @@ void Editor::setCurrentLevel(Model::Base *lvl) {
 
 void Editor::setCurrentLayer(Model::Layer *layer) {
     _current_layer = layer;
+    _current_light = NULL;
+    _current_type = 0;
     if(_current_layer != NULL) updatePositions();
+    EM_ASM({editor_ui_instance.setLayerMode();});
+}
+
+void Editor::setCurrentLight(Light::Model* light) {
+    _current_light = light;
+    _current_layer = NULL;
+    _current_type = 1;
+    if(_current_light != NULL) updatePositions();
+    EM_ASM({editor_ui_instance.setLightMode();});
 }
 
 // ------------------------------------------------------------------
@@ -130,35 +162,64 @@ void Editor::onClick() {
     int mx = Control::Mouse::X + OpenGL::Global::g_pCamera->X;
     int my = Control::Mouse::Y + OpenGL::Global::g_pCamera->Y;
 
+    struct collision {
+        int mx;
+        int my;
+
+        bool collides(float px, float py, float width, float height, float rotation, float z) {
+            // parallax correction
+            float cam_offset = OpenGL::Global::g_pCamera->X + OpenGL::Global::g_Width / 2.0f;
+            float origin = (float)px + width / 2.0f;
+            float distance = cam_offset - origin;
+            float x_offset = (distance/100.0f) * (z);
+            float x = px + x_offset;
+            float y = py;
+
+            // rotate cursor
+            glm::mat4 rot_matrix = glm::rotate(glm::radians(-(float)rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+            glm::vec2 rot_origin = glm::vec2(x + width / 2.0f, y + height / 2.0f);
+            glm::vec2 pos = glm::vec2((float)mx, (float)my) - rot_origin;
+            glm::vec4 trans = rot_matrix * glm::vec4(pos, 0.0f, 1.0f);
+            trans = trans / trans.w;
+            pos = trans.xy();
+            pos += rot_origin;
+
+            // check collision
+            if(x <= pos.x && pos.x <= (x + width)) {
+                if(y <= pos.y && pos.y <= (y + height)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    };
+
+    collision col;
+    col.mx = mx;
+    col.my = my;
+
+    // layers
     for(auto iter = _current_level->Layers.begin(); iter != _current_level->Layers.end(); iter++) {
         auto ptr = (*iter);
-        // parallax correction
-        float cam_offset = OpenGL::Global::g_pCamera->X + OpenGL::Global::g_Width / 2.0f;
-        float origin = (float)ptr->X + ptr->Width / 2.0f;
-        float distance = cam_offset - origin;
-        float x_offset = (distance/100.0f) * ((float)ptr->Z-1.0f);
-        float x = ptr->X + x_offset;
-        float y = ptr->Y;
-
-        // rotate cursor
-        glm::mat4 rot_matrix = glm::rotate(glm::radians(-(float)ptr->Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-        glm::vec2 rot_origin = glm::vec2(x + ptr->Width / 2.0f, y + ptr->Height / 2.0f);
-        glm::vec2 pos = glm::vec2((float)mx, (float)my) - rot_origin;
-        glm::vec4 trans = rot_matrix * glm::vec4(pos, 0.0f, 1.0f);
-        trans = trans / trans.w;
-        pos = trans.xy();
-        pos += rot_origin;
-
-        // check collision
-        if(x <= pos.x && pos.x <= (x + ptr->Width)) {
-            if(y <= pos.y && pos.y <= (y + ptr->Height)) {
-                _current_layer = ptr;
-                updateJsPositions();
-                return;
-            }
+        if(col.collides(ptr->X, ptr->Y, ptr->Width, ptr->Height, ptr->Rotation, (float)ptr->Z - 1.0f)) {
+            setCurrentLayer(ptr);
+            updateJsPositions();
+            return;
         }
     }
     _current_layer = NULL;
+
+    // lights
+    for(auto iter = _current_level->Lights.begin(); iter != _current_level->Lights.end(); iter++) {
+        auto ptr = (*iter);
+        if(col.collides(ptr->X - ptr->Radius, ptr->Y - ptr->Radius, ptr->Radius * 2.0f, ptr->Radius * 2.0f, 0.0f, (float)ptr->Z - 1.0f)) {
+            setCurrentLight(ptr);
+            //updateJsPositions();
+            return;
+        }
+    }
+    _current_light = NULL;
 }
 
 void Editor::onDrag(int x, int y, int state, int mods) {
@@ -222,7 +283,7 @@ void Editor::toggle() {
 }
 
 void Editor::render() {
-    if(_isActivated && _current_layer != NULL) {
+    if(_isActivated && (_current_layer != NULL || _current_light != NULL)) {
         // QUICK-FIX
         updatePositions(); // NOTE: when camera changes we have to update anyway
         unsigned int loc = glGetUniformLocation(_color_program, "mModifier");
@@ -279,66 +340,89 @@ void Editor::initial_buffer() {
 }
 
 void Editor::updatePositions() {
-    if(_current_layer == NULL) return;
+    if(_current_type == 0 && _current_layer == NULL) return;
+    if(_current_type == 1 && _current_light == NULL) return;
 
     _vertex_buffer.beginUpdate(_buffer.vindex, 0);
 
     Storage::GeometryBuilder geom(&_vertex_buffer);
 
-    // Calculate offset due to parallax scrolling
-    float cam_offset = OpenGL::Global::g_pCamera->X + OpenGL::Global::g_Width / 2.0f;
-    float origin = (float)_current_layer->X + _current_layer->Width / 2.0f;
-    float distance = cam_offset - origin;
-    geom.setOffset(glm::vec2((distance/100.0f) * ((float)_current_layer->Z-1.0f), 0.0f));
+    struct local {
+        static void buildEditorQuads(float px, float py, float width, float height, float rotation, float z, Storage::GeometryBuilder& geom) {
+            // Calculate offset due to parallax scrolling
+            float cam_offset = OpenGL::Global::g_pCamera->X + OpenGL::Global::g_Width / 2.0f;
+            float origin = (float)px + width/ 2.0f;
+            float distance = cam_offset - origin;
+            geom.setOffset(glm::vec2((distance/100.0f) * ((float)z-1.0f), 0.0f));
 
-    // Edge points
-    geom.setSize(glm::vec2(10.0f, 10.0f));
-    geom.setZOrder(0.2f);
-    geom.setRotation(_current_layer->Rotation);
-    geom.setRotationOrigin(glm::vec2(
-            _current_layer->X + _current_layer->Width / 2.0f,
-            _current_layer->Y + _current_layer->Height / 2.0f));
+            // Edge points
+            geom.setSize(glm::vec2(10.0f, 10.0f));
+            geom.setZOrder(0.2f);
+            geom.setRotation(rotation);
+            geom.setRotationOrigin(glm::vec2(
+                    px + width / 2.0f,
+                    py + height / 2.0f));
 
-    // top left
-    geom.setPosition(glm::vec2((int)_current_layer->X - 5.0f, (int)_current_layer->Y - 5.0f));
-    geom.buildQuad();
+            // top left
+            geom.setPosition(glm::vec2((int)px - 5.0f, (int)py - 5.0f));
+            geom.buildQuad();
 
-    // top right
-    geom.setPosition(glm::vec2(
-            (int)_current_layer->X + _current_layer->Width - 5.0f,
-            (int)_current_layer->Y - 5.0f));
-    geom.buildQuad();
+            // top right
+            geom.setPosition(glm::vec2(
+                    (int)px + width - 5.0f,
+                    (int)py - 5.0f));
+            geom.buildQuad();
 
-    // bottom left
-    geom.setPosition(glm::vec2(
-            (int)_current_layer->X - 5.0f,
-            (int)_current_layer->Y + _current_layer->Height - 5.0f));
-    geom.buildQuad();
+            // bottom left
+            geom.setPosition(glm::vec2(
+                    (int)px - 5.0f,
+                    (int)py + height - 5.0f));
+            geom.buildQuad();
 
-    // bottom right
-    geom.setPosition(glm::vec2(
-            (int)_current_layer->X + _current_layer->Width - 5.0f,
-            (int)_current_layer->Y + _current_layer->Height - 5.0f));
-    geom.buildQuad();
+            // bottom right
+            geom.setPosition(glm::vec2(
+                    (int)px + width - 5.0f,
+                    (int)py + height - 5.0f));
+            geom.buildQuad();
 
-    // Selection
-    // Left
-    geom.setPosition(glm::vec2((int)_current_layer->X - 2.5f, (int)_current_layer->Y));
-    geom.setSize(glm::vec2(5.0f, _current_layer->Height + 2.5f));
-    geom.buildQuad();
+            // Selection
+            // Left
+            geom.setPosition(glm::vec2((int)px - 2.5f, (int)py));
+            geom.setSize(glm::vec2(5.0f, height + 2.5f));
+            geom.buildQuad();
 
-    // Right
-    geom.setPosition(glm::vec2((int)_current_layer->X + _current_layer->Width - 2.5f, (int)_current_layer->Y));
-    geom.buildQuad();
+            // Right
+            geom.setPosition(glm::vec2((int)px + width - 2.5f, (int)py));
+            geom.buildQuad();
 
-    // Top
-    geom.setPosition(glm::vec2((int)_current_layer->X, (int)_current_layer->Y - 2.5f));
-    geom.setSize(glm::vec2(_current_layer->Width + 2.5f, 5.0f));
-    geom.buildQuad();
+            // Top
+            geom.setPosition(glm::vec2((int)px, (int)py - 2.5f));
+            geom.setSize(glm::vec2(width + 2.5f, 5.0f));
+            geom.buildQuad();
 
-    // Bottom
-    geom.setPosition(glm::vec2((int)_current_layer->X, _current_layer->Y + _current_layer->Height - 2.5f));
-    geom.buildQuad();
+            // Bottom
+            geom.setPosition(glm::vec2((int)px, py + height - 2.5f));
+            geom.buildQuad();
+
+        }
+    };
+
+    if(_current_type == 0) {
+        local::buildEditorQuads(_current_layer->X,
+                _current_layer->Y,
+                _current_layer->Width,
+                _current_layer->Height,
+                _current_layer->Rotation,
+                _current_layer->Z, geom);
+
+    } else if( _current_type == 1) {
+        local::buildEditorQuads(_current_light->X - _current_light->Radius,
+                _current_light->Y - _current_light->Radius,
+                _current_light->Radius * 2.0f,
+                _current_light->Radius * 2.0f,
+                0.0f,
+                _current_light->Z, geom);
+    }
 
     _vertex_buffer.endUpdate();
 }

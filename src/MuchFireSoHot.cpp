@@ -72,7 +72,7 @@ void prepare_test() {
     test_layer->Z = 1;
     test_layer->Width = 10;
     test_layer->Height = 10;
-    test_layer->TextureCoord = glm::vec4(0.0f, 0.0f, 10.0f, 10.0f);
+    test_layer->TextureCoord = glm::vec4(0.0f, 0.0f, 500.0f, 400.0f);
     test_layer->Renderer = new Level::Renderer::Layer(test_layer);
     test_layer->Base = current_level;
     test_layer->updateChanges();
@@ -83,7 +83,7 @@ void prepare_test() {
     test_layer2->Z = 2;
     test_layer2->Width = 50;
     test_layer2->Height = 50;
-    test_layer2->TextureCoord = glm::vec4(0.0f, 0.0f, 10.0f, 10.0f);
+    test_layer2->TextureCoord = glm::vec4(0.0f, 0.0f, 500.0f, 400.0f);
     test_layer2->Renderer = new Level::Renderer::Layer(test_layer2);
     test_layer2->Base = current_level;
     test_layer2->updateChanges();
@@ -94,7 +94,7 @@ void prepare_test() {
     test_layer_full->Z = 1;
     test_layer_full->Width = 500;
     test_layer_full->Height = 500;
-    test_layer_full->TextureCoord = glm::vec4(0.0f, 0.0f, 10.0f, 10.0f);
+    test_layer_full->TextureCoord = glm::vec4(0.0f, 0.0f, 500.0f, 400.0f);
     test_layer_full->Renderer = new Level::Renderer::Layer(test_layer_full);
     test_layer_full->Base = current_level;
     test_layer_full->updateChanges();

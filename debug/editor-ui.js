@@ -67,13 +67,20 @@ function EditorUI() {
         rotation: 0,
         texture_pos: 0
     };
+    this.light = {
+        radius: 0,
+        color: "#FFFFFF",
+        strength: 1
+    };
 
     this.layerwidgets = {};
     this.camerawidgets = {};
+    this.lightwidgets = {};
 
-    this.addCamera(this.layersidebar);
-    this.addCommon(this.layersidebar);
-    this.addLayer(this.layersidebar);
+    this.cameraUI = this.addCamera(this.layersidebar);
+    this.commonUI = this.addCommon(this.layersidebar);
+    this.layerUI = this.addLayer(this.layersidebar);
+    this.lightUI = this.addLight(this.layersidebar);
 }
 
 // --------------------------------------------------------------
@@ -98,12 +105,17 @@ EditorUI.prototype.addCommon = function(sidebar) {
     folder.addButton("New Layer", function() {
         _editor_update_vals(4);
     });
+    folder.addButton("New Light", function() {
+        _editor_update_vals(6);
+    });
+    return folder;
 };
 
 EditorUI.prototype.addCamera = function(sidebar) {
     var cam = sidebar.addMenu("Camera");
     this.camerawidgets.x = cam.addSlider("x", this.camera.x, (function(x) {editor_ui_instance.camera.x = x; _editor_update_vals(2);}), 0, 5000, 1);
     this.camerawidgets.y = cam.addSlider("y", this.camera.y, (function(y) {editor_ui_instance.camera.y = y; _editor_update_vals(2);}), 0, 5000, 1);
+    return cam;
 };
 
 EditorUI.prototype.addLayer = function(sidebar) {
@@ -126,6 +138,15 @@ EditorUI.prototype.addLayer = function(sidebar) {
     layer.addButton("Delete Layer", function() {
         _editor_update_vals(3);
     });
+    return layer;
+};
+
+EditorUI.prototype.addLight = function(sidebar) {
+    var light = sidebar.addMenu("Light");
+    this.lightwidgets.radius = light.addSlider("Radius", this.light.radius, function(rad) {editor_ui_instance.radius = rad; _editor_update_vals(7);}, 0, 500, 1);
+    this.lightwidgets.color = light.addColor("Color", this.light.color, function(col) {editor_ui_instance.color = col; _editor_update_vals(8);});
+    this.lightwidgets.strength = light.addSlider("Strength", this.light.strength, function(str) {editor_ui_instance.strength=str; _editor_update_vals(9);}, 0, 100, 1);
+    return light;
 };
 
 // --------------------------------------------------------------
@@ -141,7 +162,7 @@ EditorUI.prototype.refreshCamera = function() {
 EditorUI.prototype.refreshWidgets = function(widgets, object) {
     for(var widget in widgets) {
         if(widgets.hasOwnProperty(widget)) {
-            widgets[widget].setValue(object[widget]);
+            widgets[widget].setValue(object[widget], true);
         }
     }
 };
@@ -153,6 +174,7 @@ EditorUI.prototype.show = function() {
         this.layersidebar.setVisibility(true);
     }
     this.visible = true;
+    this.setLayerMode();
 };
 
 EditorUI.prototype.hide = function() {
@@ -168,6 +190,18 @@ EditorUI.prototype.toggle = function() {
     } else {
         this.show();
     }
+};
+
+// ---------------------------------------------------------------
+
+EditorUI.prototype.setLayerMode = function() {
+    this.layerUI.open();
+    this.lightUI.close();
+};
+
+EditorUI.prototype.setLightMode = function() {
+    this.layerUI.close();
+    this.lightUI.open();
 };
 
 var editor_ui_instance = new EditorUI();
