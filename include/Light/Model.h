@@ -15,7 +15,8 @@ namespace Light {
         Common::ModelAttribute<int> Z;
 
         Common::ModelAttribute<int> Radius;
-        Common::ModelAttribute<float> Strength;
+        Common::ModelAttribute<int> Strength;
+        Common::ModelAttribute<glm::vec4> Color;
 
         Common::ModelAttribute<bool> HasMesh;
 

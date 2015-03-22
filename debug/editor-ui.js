@@ -68,8 +68,11 @@ function EditorUI() {
         texture_pos: 0
     };
     this.light = {
+        x: 0,
+        y: 0,
+        z: 1,
         radius: 0,
-        color: "#FFFFFF",
+        color: [0, 0, 0],
         strength: 1
     };
 
@@ -143,9 +146,12 @@ EditorUI.prototype.addLayer = function(sidebar) {
 
 EditorUI.prototype.addLight = function(sidebar) {
     var light = sidebar.addMenu("Light");
-    this.lightwidgets.radius = light.addSlider("Radius", this.light.radius, function(rad) {editor_ui_instance.radius = rad; _editor_update_vals(7);}, 0, 500, 1);
-    this.lightwidgets.color = light.addColor("Color", this.light.color, function(col) {editor_ui_instance.color = col; _editor_update_vals(8);});
-    this.lightwidgets.strength = light.addSlider("Strength", this.light.strength, function(str) {editor_ui_instance.strength=str; _editor_update_vals(9);}, 0, 100, 1);
+    this.lightwidgets.x = light.addSlider("X", this.light.x, function(x) {editor_ui_instance.light.x = x; _editor_update_vals(7);}, 0, 5000, 1);
+    this.lightwidgets.y = light.addSlider("Y", this.light.y, function(y) {editor_ui_instance.light.y = y; _editor_update_vals(7);}, 0, 5000, 1);
+    this.lightwidgets.z = light.addSlider("Z", this.light.z, function(z) {editor_ui_instance.light.z = z; _editor_update_vals(7);}, 1, 100, 1);
+    this.lightwidgets.radius = light.addSlider("Radius", this.light.radius, function(rad) {editor_ui_instance.light.radius = rad; _editor_update_vals(7);}, 0, 500, 1);
+    this.lightwidgets.color = light.addColor("Color", this.light.color, function(col) {editor_ui_instance.light.color = col; _editor_update_vals(8);});
+    this.lightwidgets.strength = light.addSlider("Strength", this.light.strength, function(str) {editor_ui_instance.light.strength=str; _editor_update_vals(9);}, 0, 100, 1);
     return light;
 };
 
@@ -158,6 +164,10 @@ EditorUI.prototype.refreshLayer = function() {
 EditorUI.prototype.refreshCamera = function() {
     this.refreshWidgets(this.camerawidgets, this.camera);
 };
+
+EditorUI.prototype.refreshLight = function() {
+    this.refreshWidgets(this.lightwidgets, this.light);
+}
 
 EditorUI.prototype.refreshWidgets = function(widgets, object) {
     for(var widget in widgets) {

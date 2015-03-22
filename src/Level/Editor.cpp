@@ -23,6 +23,8 @@ Editor* Editor::Instance = NULL;
 #define UPDATE_TYPE_TEXTURE_CHANGED 5
 #define UPDATE_TYPE_NEW_LIGHT 6
 #define UPDATE_TYPE_LIGHT_POS 7
+#define UPDATE_TYPE_LIGHT_COL 8
+#define UPDATE_TYPE_LIGHT_STR 9
 
 void editor_update_vals(int type) {
 	switch(type) {
@@ -92,13 +94,40 @@ void editor_update_vals(int type) {
             light->X = 100;
             light->Y = 100;
             light->Z = 1;
-            light->Strength = 0.1f;
-            light->Radius = 50;
+            light->Strength = 50;
+            light->Radius = 100;
             light->Base = Editor::Instance->getCurrentLevel();
             light->Renderer = new Light::Renderer(light);
             light->updateChanges();
             Editor::Instance->getCurrentLevel()->Lights.push_back(light);
             Editor::Instance->setCurrentLight(light);
+            Editor::Instance->updateJsPositions();
+            break;
+        };
+        case UPDATE_TYPE_LIGHT_POS: {
+            auto light = Editor::Instance->getCurrentLight();
+            light->X = EM_ASM_INT_V({ return editor_ui_instance.light.x; });
+            light->Y = EM_ASM_INT_V({ return editor_ui_instance.light.y; });
+            light->Z = EM_ASM_INT_V({ return editor_ui_instance.light.z; });
+            light->Radius = EM_ASM_INT_V({ return editor_ui_instance.light.radius; });
+            light->updateChanges();
+            Editor::Instance->updatePositions();
+            break;
+        };
+        case UPDATE_TYPE_LIGHT_STR: {
+            Editor::Instance->getCurrentLight()->Strength = EM_ASM_INT_V({ return editor_ui_instance.light.strength; });
+            Editor::Instance->getCurrentLight()->updateChanges();
+            break;
+        };
+        case UPDATE_TYPE_LIGHT_COL: {
+            auto light = Editor::Instance->getCurrentLight();
+            glm::vec4 new_col(1.0f);
+            new_col.r = (float) EM_ASM_DOUBLE_V({ return editor_ui_instance.light.color[0]; });
+            new_col.g = (float) EM_ASM_DOUBLE_V({ return editor_ui_instance.light.color[1]; });
+            new_col.b = (float) EM_ASM_DOUBLE_V({ return editor_ui_instance.light.color[2]; });
+            light->Color = new_col;
+            light->updateChanges();
+            break;
         };
     }
     Editor::Instance->getCurrentLayer()->updateChanges();
@@ -215,7 +244,7 @@ void Editor::onClick() {
         auto ptr = (*iter);
         if(col.collides(ptr->X - ptr->Radius, ptr->Y - ptr->Radius, ptr->Radius * 2.0f, ptr->Radius * 2.0f, 0.0f, (float)ptr->Z - 1.0f)) {
             setCurrentLight(ptr);
-            //updateJsPositions();
+            updateJsPositions();
             return;
         }
     }
@@ -240,11 +269,20 @@ void Editor::onDrag(int x, int y, int state, int mods) {
         }
     } else {
         if(state == CONTROL_MOUSE_DRAG_BEGIN) onClick();
-        if(_current_layer == NULL) return;
+        if(_current_type == 0) {
+            if (_current_layer == NULL) return;
 
-        _current_layer->X += difX;
-        _current_layer->Y += difY;
-        _current_layer->updateChanges();
+            _current_layer->X += difX;
+            _current_layer->Y += difY;
+            _current_layer->updateChanges();
+        }
+        else if(_current_type == 1) {
+            if (_current_light == NULL) return;
+
+            _current_light->X += difX;
+            _current_light->Y += difY;
+            _current_light->updateChanges();
+        }
         updatePositions();
     }
 
@@ -254,20 +292,43 @@ void Editor::onDrag(int x, int y, int state, int mods) {
 // ------------------------------------------------------------------
 
 void Editor::updateJsPositions() {
+    // Camera
     EM_ASM_INT({
-        editor_ui_instance.layer.x = $0;
-        editor_ui_instance.layer.y = $1;
-        editor_ui_instance.layer.z = $2;
-        editor_ui_instance.layer.width = $3;
-        editor_ui_instance.layer.height = $4;
-        editor_ui_instance.layer.rotation = $5;
-        editor_ui_instance.camera.x = $6;
-        editor_ui_instance.camera.y = $7;
-        editor_ui_instance.refreshLayer();
+        editor_ui_instance.camera.x = $0;
+        editor_ui_instance.camera.y = $1;
         editor_ui_instance.refreshCamera();
-    }, (int)_current_layer->X, (int)_current_layer->Y, (int)_current_layer->Z,
-            (int)_current_layer->Width, (int)_current_layer->Height, (int)_current_layer->Rotation,
-            (int) OpenGL::Global::g_pCamera->X, (int) OpenGL::Global::g_pCamera->Y);
+    }, (int)OpenGL::Global::g_pCamera->X, (int)OpenGL::Global::g_pCamera->Y);
+
+    // Layer
+    if(_current_type == 0) {
+        EM_ASM_INT({
+            editor_ui_instance.layer.x = $0;
+            editor_ui_instance.layer.y = $1;
+            editor_ui_instance.layer.z = $2;
+            editor_ui_instance.layer.width = $3;
+            editor_ui_instance.layer.height = $4;
+            editor_ui_instance.layer.rotation = $5;
+            editor_ui_instance.refreshLayer();
+        }, (int)_current_layer->X, (int)_current_layer->Y, (int)_current_layer->Z,
+                (int)_current_layer->Width, (int)_current_layer->Height, (int)_current_layer->Rotation);
+    }
+
+    // Light
+    if(_current_type == 1) {
+        EM_ASM_INT({
+            editor_ui_instance.light.x = $0;
+            editor_ui_instance.light.y = $1;
+            editor_ui_instance.light.z = $2;
+            editor_ui_instance.light.radius = $3;
+            editor_ui_instance.light.strength = $4;
+            editor_ui_instance.light.color[0] = $5 / 255.0;
+            editor_ui_instance.light.color[1] = $6 / 255.0;
+            editor_ui_instance.light.color[2] = $7 / 255.0;
+            editor_ui_instance.refreshLight();
+        }, (int)_current_light->X, (int)_current_light->Y, (int)_current_light->Z,
+                (int)_current_light->Radius, (int)_current_light->Strength,
+                (int)(_current_light->Color->r * 255.0f), (int)(_current_light->Color->g * 255.0f), (int)(_current_light->Color->b * 255.0f));
+    }
 }
 
 void Editor::toggle() {

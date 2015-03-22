@@ -27,6 +27,7 @@ namespace Level {
 
 		Model::Base* getCurrentLevel() { return _current_level; }
         Model::Layer* getCurrentLayer() { return _current_layer; }
+        Light::Model* getCurrentLight() { return _current_light; }
 
         bool isEditing();
 
