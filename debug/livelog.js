@@ -10,7 +10,7 @@ var LiveLog_init = function(table, onInitDone) {
     }
 
     LiveLog_es_client = new $.es.Client({
-        hosts: 'localhost:9200'
+        hosts: 'http://127.0.0.1:9200'
     });
     LiveLog_es_index = "logstash-emscripten-" + Date.now();
     LiveLog_es_client.indices.create({
@@ -35,6 +35,10 @@ var LiveLog_init = function(table, onInitDone) {
             }
         }, function(error, response, status) {
             LiveLog_es_inited = true;
+            $("#kibana-iframe").attr("src", 
+                "http://localhost:5601/#/dashboard/Dev-Main?embed&_g=(refreshInterval:(display:'5%20seconds',section:1,value:5000),time:(from:now-5m,mode:relative,to:now))&_a=(filters:!((meta:(index:'logstash-emscripten-*',negate:!f),query:(match:(instance:(query:"
+                    + LiveLog_es_index + ",type:phrase))))),panels:!((col:1,id:Log,row:1,size_x:7,size_y:9,type:search),(col:8,id:FPS-Graph,row:1,size_x:5,size_y:5,type:visualization),(col:8,id:Log-Type-Pie,row:6,size_x:5,size_y:4,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:'Dev%20Main')")
+
             onInitDone();
         });
     });
@@ -63,7 +67,6 @@ var LiveLog_push = function(builder) {
                 "instance": LiveLog_es_index
             }
         }, function (error, response, status) {
-            //debugger;
         });
     };
     if(LiveLog_es_inited) {

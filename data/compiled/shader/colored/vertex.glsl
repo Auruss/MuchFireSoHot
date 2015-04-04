@@ -1,4 +1,6 @@
+#ifndef NATIVE
 precision mediump float;
+#endif
 
 uniform mat4 mModifier;
 

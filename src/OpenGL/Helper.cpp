@@ -6,7 +6,11 @@
 #include <cstdio>
 #include <iostream>
 
+#ifdef __EMSCRIPTEN__
 #include <SDL/SDL_image.h>
+#else
+#include <SDL_image.h>
+#endif
 #include <Common/LiveLog/Builder.h>
 #include <fstream>
 
@@ -48,8 +52,17 @@ unsigned int OpenGL::Helper::createProgramFromMemory(const char *vertex, const c
     int vs_len = strlen(vertex);
     int fs_len = strlen(fragment);
 
-    glShaderSource(vs, 1, &vertex, &vs_len);
-    glShaderSource(fs, 1, &fragment, &fs_len);
+	const char* vertexSrcs[2];
+#ifndef __EMSCRIPTEN__
+	vertexSrcs[0] = "#define NATIVE 1\n";
+#else
+	vertexSrcs[0] = "#define WEB 1\n";
+#endif
+
+	vertexSrcs[1] = vertex;
+    glShaderSource(vs, 2, vertexSrcs, NULL);
+	vertexSrcs[1] = fragment;
+    glShaderSource(fs, 2, vertexSrcs, NULL);
 
     glCompileShader(vs);
     if(!checkShaderCompileStatus(vs)) return -1;
@@ -110,7 +123,7 @@ unsigned int OpenGL::Helper::createProgramFromFiles(const char *name) {
 unsigned int OpenGL::Helper::createTextureFromFile(const char *file, glm::vec2& size) {
     auto surface = IMG_Load(file);
     if(!IS_POW_2(surface->w) || !IS_POW_2(surface->h)) {
-        fprintf(stderr, "'%s' resolutions are not power of 2\n", file);
+        fprintf(stderr, "'%s' resolutions are not power of 2 instead it is %dx%d\n", file, surface->w, surface->h);
         return -1;
     }
 

@@ -1,4 +1,6 @@
+#ifndef NATIVE
 precision mediump float;
+#endif
 
 uniform mat4 mModifier;
 uniform vec2 mEyes;
@@ -8,10 +10,12 @@ attribute vec2 vTexCoord;
 attribute vec2 vOrigin;
 
 varying vec2 v_TexCoord;
+varying vec3 v_PositionOrg;
 
 void main() {
    // Global
    v_TexCoord = vTexCoord;
+   v_PositionOrg = vPosition;
 
    // Parallax
    float cam_distance = mEyes.x - vOrigin.x;

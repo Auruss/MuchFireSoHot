@@ -1,5 +1,5 @@
 #include <Level/Editor.h>
-#include <emscripten/emscripten.h>
+#include <Common/Emscripten.h>
 #include <OpenGL/Global.h>
 #include <Common/LiveLog/Builder.h>
 #include <Common/LiveLog/CommonReflections.h>
@@ -300,7 +300,7 @@ void Editor::updateJsPositions() {
     }, (int)OpenGL::Global::g_pCamera->X, (int)OpenGL::Global::g_pCamera->Y);
 
     // Layer
-    if(_current_type == 0) {
+	if (_current_type == 0 && _current_layer != NULL) {
         EM_ASM_INT({
             editor_ui_instance.layer.x = $0;
             editor_ui_instance.layer.y = $1;
@@ -314,7 +314,7 @@ void Editor::updateJsPositions() {
     }
 
     // Light
-    if(_current_type == 1) {
+    if(_current_type == 1 && _current_light != NULL) {
         EM_ASM_INT({
             editor_ui_instance.light.x = $0;
             editor_ui_instance.light.y = $1;

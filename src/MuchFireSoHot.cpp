@@ -1,3 +1,5 @@
+#include <GL/glew.h>
+
 #include <cstdio>
 
 #include <cstring>
@@ -5,14 +7,18 @@
 #include <cstdlib>
 #include <stdlib.h>
 
-#include <emscripten/emscripten.h>
+#include <Common/Emscripten.h>
 
 #include <boost/algorithm/string.hpp>
 
 #include <Common/GameTime.h>
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#ifndef __EMSCRIPTEN__
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_WGL
+#include <GLFW/glfw3native.h>
+#endif
 
 #include <Level/Model/Base.h>
 
@@ -56,6 +62,7 @@ void prepare_test() {
     // load level texture
 
     // create test level
+    glm::vec2 temp;
     current_level = new Level::Model::Base();
     current_level->ChunksX = 5;
     current_level->ChunksY = 5;
@@ -64,6 +71,7 @@ void prepare_test() {
     current_level->Renderer = new Level::Renderer::Base(current_level);
     current_level->Renderer->TextureId =
             OpenGL::Helper::createTextureFromFile("data/compiled/default-map.png", current_level->Renderer->TextureSize);
+    current_level->Renderer->NormalId = OpenGL::Helper::createTextureFromFile("data/compiled/default-map-normals.png", temp);
 
     // test layer
     auto test_layer = new Level::Model::Layer();
@@ -72,9 +80,10 @@ void prepare_test() {
     test_layer->Z = 1;
     test_layer->Width = 10;
     test_layer->Height = 10;
-    test_layer->TextureCoord = glm::vec4(0.0f, 0.0f, 500.0f, 400.0f);
-    test_layer->Renderer = new Level::Renderer::Layer(test_layer);
+    test_layer->TextureCoord = glm::vec4(0.0f, 0.0f, 500.0f, 500.0f);
     test_layer->Base = current_level;
+	test_layer->Rotation = 0;
+	test_layer->Renderer = new Level::Renderer::Layer(test_layer);
     test_layer->updateChanges();
 
     auto test_layer2 = new Level::Model::Layer();
@@ -83,9 +92,10 @@ void prepare_test() {
     test_layer2->Z = 2;
     test_layer2->Width = 50;
     test_layer2->Height = 50;
-    test_layer2->TextureCoord = glm::vec4(0.0f, 0.0f, 500.0f, 400.0f);
-    test_layer2->Renderer = new Level::Renderer::Layer(test_layer2);
+    test_layer2->TextureCoord = glm::vec4(0.0f, 0.0f, 500.0f, 500.0f);
     test_layer2->Base = current_level;
+	test_layer2->Rotation = 0;
+	test_layer2->Renderer = new Level::Renderer::Layer(test_layer2);
     test_layer2->updateChanges();
 
     auto test_layer_full = new Level::Model::Layer();
@@ -94,9 +104,10 @@ void prepare_test() {
     test_layer_full->Z = 1;
     test_layer_full->Width = 500;
     test_layer_full->Height = 500;
-    test_layer_full->TextureCoord = glm::vec4(0.0f, 0.0f, 500.0f, 400.0f);
-    test_layer_full->Renderer = new Level::Renderer::Layer(test_layer_full);
+    test_layer_full->TextureCoord = glm::vec4(0.0f, 0.0f, 500.0f, 500.0f);
     test_layer_full->Base = current_level;
+	test_layer_full->Rotation = 0;
+	test_layer_full->Renderer = new Level::Renderer::Layer(test_layer_full);
     test_layer_full->updateChanges();
 
     // add layers
@@ -114,6 +125,10 @@ GLFWwindow* window;
 //called each frame
 void mainloop()
 {
+#ifndef __EMSCRIPTEN__
+    Common::Emscripten::simulationStep();
+#endif
+
     // poll changes
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -123,7 +138,7 @@ void mainloop()
     /*if (Common::GameTime::tickEvery(10000, fps_debugger, false)) { // print every 10 seconds the fps
         printf("FPS Debugger Tick: %d\n", Common::GameTime::FPS);
     }*/
-    if(Common::GameTime::tickEvery(500, fps_debugger, false)) {
+    if(Common::GameTime::tickEvery(1000, fps_debugger, false)) {
         FpsLog log;
         log.fps = Common::GameTime::FPS;
 
@@ -159,10 +174,6 @@ void on_glfw_key_input(GLFWwindow* window, int key, int scan_code, int action, i
 }
 
 void init_gl(int width, int height) {
-    if (glfwInit() != GL_TRUE) {
-        fprintf(stderr, "GLFW failed\n");
-        exit(1);
-    }
 
     window = glfwCreateWindow(width, height, "JS", NULL, NULL);
     if (window == NULL) {
@@ -177,6 +188,7 @@ void init_gl(int width, int height) {
         fprintf(stderr, "GLEW failed: %s\n", glewGetErrorString(err));
         exit(1);
     }
+
 
     // Printing OpenGL information
     printf("\tVersion:  %s\n", glGetString(GL_VERSION));
@@ -216,14 +228,6 @@ void init_gl(int width, int height) {
 int argc_saved;
 char** argv_saved;
 
-int main(int argc, char* argv []) {
-    argc_saved = argc;
-    argv_saved = argv;
-
-    EM_ASM({
-        Module.mainCalled();
-    });
-}
 
 extern "C" void real_main() {
     Common::LiveLog::init_common_reflections();
@@ -248,6 +252,7 @@ extern "C" void real_main() {
         }
     }
 
+
     init_gl(resolution_x, resolution_y);
     mapper = new Control::Mapper();
     global_controls = new Control::Global(test_flag);
@@ -264,6 +269,36 @@ extern "C" void real_main() {
         prepare_test();
     }
 
+    #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(mainloop, 0, true);
+    #else
+    while(true) {
+        mainloop();
+    }
+    #endif
     return;
+}
+
+int main(int argc, char* argv []) {
+	argc_saved = argc;
+	argv_saved = argv;
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM({
+		Module.mainCalled();
+	});
+#endif
+
+    if (glfwInit() != GL_TRUE) {
+        fprintf(stderr, "GLFW failed\n");
+        exit(1);
+    }
+
+#ifndef __EMSCRIPTEN__
+    auto simWindow = glfwCreateWindow(1400, 900, "Emscripten simulation", NULL, NULL);
+    Common::Emscripten::startSimulation(glfwGetWin32Window(simWindow), "file://C:/MuchFireSoHot/debug/debugger_simulation.html", 1400, 900);
+    while(Common::Emscripten::simulationStep()) {
+    }
+    real_main();
+#endif
 }

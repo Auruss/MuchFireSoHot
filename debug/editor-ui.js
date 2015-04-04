@@ -106,52 +106,52 @@ EditorUI.prototype.setMode = function(mode) {
 EditorUI.prototype.addCommon = function(sidebar) {
     var folder = sidebar.addMenu("Common");
     folder.addButton("New Layer", function() {
-        _editor_update_vals(4);
+        Module._editor_update_vals(4);
     });
     folder.addButton("New Light", function() {
-        _editor_update_vals(6);
+        Module._editor_update_vals(6);
     });
     return folder;
 };
 
 EditorUI.prototype.addCamera = function(sidebar) {
     var cam = sidebar.addMenu("Camera");
-    this.camerawidgets.x = cam.addSlider("x", this.camera.x, (function(x) {editor_ui_instance.camera.x = x; _editor_update_vals(2);}), 0, 5000, 1);
-    this.camerawidgets.y = cam.addSlider("y", this.camera.y, (function(y) {editor_ui_instance.camera.y = y; _editor_update_vals(2);}), 0, 5000, 1);
+    this.camerawidgets.x = cam.addSlider("x", this.camera.x, (function(x) {editor_ui_instance.camera.x = x; Module._editor_update_vals(2);}), 0, 5000, 1);
+    this.camerawidgets.y = cam.addSlider("y", this.camera.y, (function(y) {editor_ui_instance.camera.y = y; Module._editor_update_vals(2);}), 0, 5000, 1);
     return cam;
 };
 
 EditorUI.prototype.addLayer = function(sidebar) {
     var layer = sidebar.addMenu("Layer");
-    this.layerwidgets.x = layer.addSlider("x", this.layer.x, (function(x) {editor_ui_instance.layer.x = x; _editor_update_vals(0);}), 0, 5000, 1);
-    this.layerwidgets.y = layer.addSlider("y", this.layer.y, (function(y) {editor_ui_instance.layer.y = y; _editor_update_vals(0);}), 0, 5000, 1);
-    this.layerwidgets.z = layer.addSlider("z", this.layer.z, (function(z) {editor_ui_instance.layer.z = z; _editor_update_vals(0);}), 1, 100, 1);
-    this.layerwidgets.width = layer.addSlider("Width", this.layer.width, (function(x) {editor_ui_instance.layer.width = x; _editor_update_vals(0);}), 0, 5000, 1);
-    this.layerwidgets.height = layer.addSlider("Height", this.layer.height, (function(y) {editor_ui_instance.layer.height = y; _editor_update_vals(0);}), 0, 5000, 1);
-    this.layerwidgets.rotation = layer.addSlider("Rotation", this.layer.rotation, function(rot) {editor_ui_instance.layer.rotation = rot; _editor_update_vals(0);}, 0, 360, 1);
+    this.layerwidgets.x = layer.addSlider("x", this.layer.x, (function(x) {editor_ui_instance.layer.x = x; Module._editor_update_vals(0);}), 0, 5000, 1);
+    this.layerwidgets.y = layer.addSlider("y", this.layer.y, (function(y) {editor_ui_instance.layer.y = y; Module._editor_update_vals(0);}), 0, 5000, 1);
+    this.layerwidgets.z = layer.addSlider("z", this.layer.z, (function(z) {editor_ui_instance.layer.z = z; Module._editor_update_vals(0);}), 1, 100, 1);
+    this.layerwidgets.width = layer.addSlider("Width", this.layer.width, (function(x) {editor_ui_instance.layer.width = x; Module._editor_update_vals(0);}), 0, 5000, 1);
+    this.layerwidgets.height = layer.addSlider("Height", this.layer.height, (function(y) {editor_ui_instance.layer.height = y; Module._editor_update_vals(0);}), 0, 5000, 1);
+    this.layerwidgets.rotation = layer.addSlider("Rotation", this.layer.rotation, function(rot) {editor_ui_instance.layer.rotation = rot; Module._editor_update_vals(0);}, 0, 360, 1);
 
     layer.addButton("Set Texture", function() {
         var mapper = new TextureMapper();
         mapper.openNew(function(rect) {
             editor_ui_instance.layer.texture_pos = rect;
-            _editor_update_vals(5);
+            Module._editor_update_vals(5);
         });
     });
 
     layer.addButton("Delete Layer", function() {
-        _editor_update_vals(3);
+        Module._editor_update_vals(3);
     });
     return layer;
 };
 
 EditorUI.prototype.addLight = function(sidebar) {
     var light = sidebar.addMenu("Light");
-    this.lightwidgets.x = light.addSlider("X", this.light.x, function(x) {editor_ui_instance.light.x = x; _editor_update_vals(7);}, 0, 5000, 1);
-    this.lightwidgets.y = light.addSlider("Y", this.light.y, function(y) {editor_ui_instance.light.y = y; _editor_update_vals(7);}, 0, 5000, 1);
-    this.lightwidgets.z = light.addSlider("Z", this.light.z, function(z) {editor_ui_instance.light.z = z; _editor_update_vals(7);}, 1, 100, 1);
-    this.lightwidgets.radius = light.addSlider("Radius", this.light.radius, function(rad) {editor_ui_instance.light.radius = rad; _editor_update_vals(7);}, 0, 500, 1);
-    this.lightwidgets.color = light.addColor("Color", this.light.color, function(col) {editor_ui_instance.light.color = col; _editor_update_vals(8);});
-    this.lightwidgets.strength = light.addSlider("Strength", this.light.strength, function(str) {editor_ui_instance.light.strength=str; _editor_update_vals(9);}, 0, 100, 1);
+    this.lightwidgets.x = light.addSlider("X", this.light.x, function(x) {editor_ui_instance.light.x = x; Module._editor_update_vals(7);}, 0, 5000, 1);
+    this.lightwidgets.y = light.addSlider("Y", this.light.y, function(y) {editor_ui_instance.light.y = y; Module._editor_update_vals(7);}, 0, 5000, 1);
+    this.lightwidgets.z = light.addSlider("Z", this.light.z, function(z) {editor_ui_instance.light.z = z; Module._editor_update_vals(7);}, 1, 100, 1);
+    this.lightwidgets.radius = light.addSlider("Radius", this.light.radius, function(rad) {editor_ui_instance.light.radius = rad; Module._editor_update_vals(7);}, 0, 500, 1);
+    this.lightwidgets.color = light.addColor("Color", this.light.color, function(col) {editor_ui_instance.light.color = col; Module._editor_update_vals(8);});
+    this.lightwidgets.strength = light.addSlider("Strength", this.light.strength, function(str) {editor_ui_instance.light.strength=str; Module._editor_update_vals(9);}, 0, 100, 1);
     return light;
 };
 

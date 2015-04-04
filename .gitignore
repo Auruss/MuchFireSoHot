@@ -3,6 +3,10 @@
 
 # Build files
 build/*
+build_vs/*
+
+# Debug environment
+./*.lib
 
 # Exlude vim temporary files
 *.swo

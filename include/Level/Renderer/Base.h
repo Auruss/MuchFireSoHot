@@ -18,6 +18,7 @@ namespace Level {
 
 			glm::vec2 TextureSize;
 			unsigned int TextureId;
+			unsigned int NormalId;
 
 		public:
 			Base(Model::Base* model);

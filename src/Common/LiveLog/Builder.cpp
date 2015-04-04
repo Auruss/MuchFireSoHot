@@ -1,7 +1,8 @@
 #include <sstream>
 #include <cstring>
+#include <cstdarg>
 
-#include <emscripten/emscripten.h>
+#include <Common/Emscripten.h>
 
 #include <Common/LiveLog/Builder.h>
 
@@ -37,7 +38,7 @@ void Builder::setMessage(const char *format, ...) {
 
     _message = buffer;
 
-    EM_ASM_ARGS({
+    EM_ASM_INT({
         live_log_instance.setMessage($0);
     }, _message);
 }
@@ -48,7 +49,7 @@ void Builder::addRefObj(const char* name, ReflObject *refl, void* data_ptr) {
     jsonify(refl, str, name, (char*)data_ptr);
     str << "}";
 
-    EM_ASM_ARGS({
+    EM_ASM_INT({
         live_log_instance.addReferenceObject($0,$1);
     }, name, str.str().c_str());
 }
