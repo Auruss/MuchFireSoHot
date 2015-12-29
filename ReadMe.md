@@ -1,18 +1,6 @@
 Much Fire - So Hot
 ==================
 
-AGILE Workflow
---------------
-
-## Agile
-We finally migrated to a SCRUM oriented workflow using youtrack (http://youtrack.arenaclash.net:8080/) 
-
-## SCRUM Master:
-- Game: Rene Eichhorn
-
-Anybody else should not grab these issues however you are free create new tickets (this is encouraged)
-
-
 Building
 --------
 Our build system is currently development only (no release builds yet)
